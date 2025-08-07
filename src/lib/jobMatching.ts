@@ -1,9 +1,7 @@
 // src/lib/jobMatching.ts
 
-// --- Get Supabase URL from environment variables ---
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
-// --- Interfaces (no changes) ---
 export interface CVAnalysis {
   primaryRole: string;
   secondaryRoles: string[];
@@ -32,10 +30,8 @@ export interface JobOpportunity {
   url?: string;
 }
 
-// --- Main Job Matching Engine Class ---
 export class JobMatchingEngine {
   
-  // --- !! FIXED: Added the missing roleKeywords property back !! ---
   private roleKeywords = {
     'Software Engineer': ['software', 'engineer', 'developer', 'programming', 'coding', 'javascript', 'python', 'java', 'react', 'node'],
     'Frontend Developer': ['frontend', 'front-end', 'react', 'vue', 'angular', 'html', 'css', 'javascript', 'ui', 'ux'],
@@ -49,7 +45,6 @@ export class JobMatchingEngine {
     'Mobile Developer': ['mobile', 'ios', 'android', 'react native', 'flutter', 'swift', 'kotlin']
   };
 
-  // --- CV Analysis logic (no changes needed here) ---
   analyzeCV(cvData: any): CVAnalysis {
     const text = this.extractTextFromCV(cvData);
     const skills = this.extractSkills(text);
@@ -140,8 +135,7 @@ export class JobMatchingEngine {
     return [...new Set(technicalWords)].slice(0, 20);
   }
 
-  // --- MODIFIED: Job Fetching Logic ---
-  private async fetchJobsViaProxy(cvAnalysis: CVAnalysis, filters: any): Promise<JobOpportunity[]> {
+  private async fetchJobsViaProxy(cvAnalysis: CVAnalysis, filters: any, authToken: string): Promise<JobOpportunity[]> {
     if (!SUPABASE_URL) {
       console.error("Supabase URL is not configured in the frontend.");
       return [];
@@ -156,8 +150,12 @@ export class JobMatchingEngine {
     });
 
     try {
-      // --- Calls our own Supabase function ---
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/job-handler?${params.toString()}`);
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/job-handler?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -192,14 +190,13 @@ export class JobMatchingEngine {
     }
   }
 
-  async findMatchingJobs(cvAnalysis: CVAnalysis, filters: any = {}): Promise<JobOpportunity[]> {
-    const fetchedJobs = await this.fetchJobsViaProxy(cvAnalysis, filters);
+  async findMatchingJobs(cvAnalysis: CVAnalysis, filters: any = {}, authToken: string): Promise<JobOpportunity[]> {
+    const fetchedJobs = await this.fetchJobsViaProxy(cvAnalysis, filters, authToken);
 
     if (!fetchedJobs.length) {
       return [];
     }
     
-    // Calculate match scores and sort
     const scoredJobs = fetchedJobs.map(job => ({
       ...job,
       match: this.calculateMatchScore(job, cvAnalysis)
@@ -212,20 +209,17 @@ export class JobMatchingEngine {
     let score = 0;
     const jobTitleLower = job.title.toLowerCase();
     
-    // Role match (40% weight)
     if (jobTitleLower.includes(cvAnalysis.primaryRole.toLowerCase())) {
       score += 40;
     } else if (cvAnalysis.secondaryRoles.some(role => jobTitleLower.includes(role.toLowerCase()))) {
       score += 25;
     }
     
-    // Skills match (30% weight) - Check against job description
     const skillMatches = cvAnalysis.skills.filter(skill => 
       job.description.toLowerCase().includes(skill.toLowerCase())
     ).length;
     score += Math.min(skillMatches * 5, 30);
     
-    // Seniority match (20% weight)
     const jobSeniority = this.determineSeniorityFromTitle(job.title);
     if (jobSeniority === cvAnalysis.seniority) {
       score += 20;
@@ -233,12 +227,11 @@ export class JobMatchingEngine {
       score += 10;
     }
     
-    // Industry match (10% weight)
     if (cvAnalysis.industries.some(industry => job.industry.toLowerCase().includes(industry))) {
       score += 10;
     }
     
-    return Math.min(Math.floor(score * (Math.random() * 0.2 + 0.9)), 99); // Add a little randomness and cap at 99
+    return Math.min(Math.floor(score * (Math.random() * 0.2 + 0.9)), 99);
   }
   
   private determineSeniorityFromTitle(title: string): 'entry' | 'mid' | 'senior' | 'lead' {
@@ -258,7 +251,6 @@ export class JobMatchingEngine {
   }
 }
 
-// --- Cover Letter Generator ---
 export class CoverLetterGenerator {
   generateCoverLetter(cvAnalysis: CVAnalysis, job: JobOpportunity, userProfile: any): string {
     const template = this.selectTemplate(job.role);
@@ -286,11 +278,9 @@ I would welcome the opportunity to discuss how my background in software enginee
 
 Best regards,
 {USER_NAME}`,
-
-      // Add other templates if needed...
     };
 
-    return templates['Software Engineer']; // Default template
+    return templates['Software Engineer'];
   }
 
   private getRelevantSkills(cvAnalysis: CVAnalysis, job: JobOpportunity): string {

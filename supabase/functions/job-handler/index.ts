@@ -8,18 +8,34 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
-// --- Get secrets from Supabase Edge Function settings ---
 const ADZUNA_APP_ID = Deno.env.get('ADZUNA_APP_ID');
 const ADZUNA_APP_KEY = Deno.env.get('ADZUNA_APP_KEY');
-
-// Initialize Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+async function getUserFromToken(authHeader: string): Promise<{ user: any; error?: string }> {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { user: null, error: 'Missing or invalid authorization header' };
+  }
+  const token = authHeader.replace('Bearer ', '');
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) {
+    return { user: null, error: 'Invalid or expired token' };
+  }
+  return { user };
+}
 
-// --- Handler for GET requests to search for jobs ---
 async function searchJobs(req: Request) {
+  const authHeader = req.headers.get('Authorization');
+  const { user, error: authError } = await getUserFromToken(authHeader || '');
+  if (authError || !user) {
+    return new Response(JSON.stringify({ error: authError || 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   if (!ADZUNA_APP_ID || !ADZUNA_APP_KEY) {
     return new Response(JSON.stringify({ error: 'Adzuna API credentials are not configured on the server.' }), {
       status: 500,
@@ -62,21 +78,14 @@ async function searchJobs(req: Request) {
   }
 }
 
-
-// --- Handler for POST requests to apply for jobs (your existing logic) ---
 async function applyForJobs(req: Request) {
-    // ... (Your existing application logic from apply-jobs/index.ts goes here)
-    // This part of the code does not need to change.
-    // For brevity, it's omitted here, but you should paste your full 'applyToJob'
-    // and related functions into this section.
+    // This is where your original application logic would go.
     return new Response(JSON.stringify({ message: "Application logic would run here." }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 }
 
-
-// --- Main Deno Serve Function ---
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -95,3 +104,4 @@ Deno.serve(async (req: Request) => {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 });
+

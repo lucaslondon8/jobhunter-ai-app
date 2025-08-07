@@ -44,23 +44,20 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
     if (userCV) {
       findJobs();
     }
-  }, [userCV]);
+  }, [userCV, filters]);
 
-  useEffect(() => {
-    if (userCV) {
-      findJobs();
-    }
-  }, [filters]);
   const findJobs = async () => {
     setIsLoading(true);
     
     try {
-      // Analyze CV to understand user's profile
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("User not authenticated. Cannot fetch jobs.");
+      }
+      const token = session.access_token;
+
       const cvAnalysis = jobMatchingEngine.analyzeCV(userCV);
-      
-      // Find matching jobs based on analysis and filters
-      const matchingJobs = await jobMatchingEngine.findMatchingJobs(cvAnalysis, filters);
-      
+      const matchingJobs = await jobMatchingEngine.findMatchingJobs(cvAnalysis, filters, token);
       setJobs(matchingJobs);
     } catch (error) {
       console.error('Error finding jobs:', error);
@@ -83,21 +80,13 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
     setShowCoverLetter(true);
     
     try {
-      // Analyze CV
       const cvAnalysis = jobMatchingEngine.analyzeCV(userCV);
-      
-      // Get user profile (you might want to pass this as a prop)
       const userProfile = {
-        name: 'John Doe', // This should come from actual user data
+        name: 'John Doe',
         email: 'john@example.com'
       };
-      
-      // Generate cover letter
       const coverLetter = coverLetterGenerator.generateCoverLetter(cvAnalysis, job, userProfile);
-      
-      // Simulate AI processing time
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
       setGeneratedCoverLetter(coverLetter);
     } catch (error) {
       console.error('Error generating cover letter:', error);
@@ -114,17 +103,12 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
     );
   };
 
-  const handleBulkApply = () => {
-    handleRealBulkApply();
-  };
-
-  const handleRealBulkApply = async () => {
+  const handleBulkApply = async () => {
     if (selectedJobs.length === 0) return;
 
     setIsApplying(true);
 
     try {
-      // Get current session for auth token
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -133,14 +117,12 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
 
       const selectedJobData = jobs.filter(job => selectedJobs.includes(job.id));
       
-      // Submit applications via our backend service
       const result = await applicationService.submitApplications(
         selectedJobData,
         userCV,
         session.access_token
       );
 
-      // Create local application records for immediate UI update
       const localApplications = selectedJobData.map(job => ({
         id: Date.now() + Math.random(),
         jobId: job.id,
@@ -153,11 +135,9 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
       onApply(localApplications);
       setSelectedJobs([]);
 
-      // Show success message with details
       const { successful, failed, total } = result.summary;
       const message = `Applied to ${successful}/${total} jobs successfully!${failed > 0 ? ` ${failed} applications need manual review.` : ''}`;
       
-      // In a real app, this would be a toast notification
       alert(message);
 
     } catch (error) {
@@ -401,8 +381,8 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
           <Search className="w-16 h-16 text-gray-400 mx-auto mb-6" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">No Jobs Found</h3>
           <p className="text-gray-600 mb-6">Try adjusting your filters or updating your CV</p>
-          <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all transform hover:scale-105">
-            Refresh Search
+          <button onClick={findJobs} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all transform hover:scale-105">
+            Find Jobs
           </button>
         </div>
       )}
@@ -460,3 +440,4 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
 };
 
 export default JobMatching;
+
