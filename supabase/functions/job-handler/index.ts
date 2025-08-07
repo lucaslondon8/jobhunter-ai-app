@@ -1,3 +1,4 @@
+
 // supabase/functions/job-handler/index.ts
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -48,23 +49,32 @@ async function searchJobs(req: Request) {
   const where = url.searchParams.get('where') || 'london';
   const country = 'gb'; // Hardcode to Great Britain
 
+  // Fixed: Removed invalid 'content_type' parameter that was causing 400 errors
   const params = new URLSearchParams({
     app_id: ADZUNA_APP_ID,
     app_key: ADZUNA_APP_KEY,
     results_per_page: '20',
     what,
     where,
-    content_type: 'application/json'
   });
 
+  // Added detailed logging for debugging
+  const apiUrl = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?${params.toString()}`;
+  console.log('Adzuna API Request URL:', apiUrl);
+  console.log('Search parameters:', { what, where, country });
+
   try {
-    const adzunaResponse = await fetch(`https://api.adzuna.com/v1/api/jobs/${country}/search/1?${params.toString()}`);
+    const adzunaResponse = await fetch(apiUrl);
     if (!adzunaResponse.ok) {
       const errorBody = await adzunaResponse.text();
       console.error("Adzuna API Error:", errorBody);
+      console.error("Response status:", adzunaResponse.status);
+      console.error("Response headers:", Object.fromEntries(adzunaResponse.headers.entries()));
       throw new Error(`Adzuna API request failed with status ${adzunaResponse.status}`);
     }
+    
     const data = await adzunaResponse.json();
+    console.log(`Successfully fetched ${data.results?.length || 0} jobs from Adzuna`);
 
     return new Response(JSON.stringify(data), {
       status: 200,
