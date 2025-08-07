@@ -4,10 +4,8 @@
 const ADZUNA_APP_ID = import.meta.env.VITE_ADZUNA_APP_ID;
 const ADZUNA_APP_KEY = import.meta.env.VITE_ADZUNA_APP_KEY;
 
-// --- !! NEW DEBUGGING LINE !! ---
+// --- !! DEBUGGING LINE - CAN BE REMOVED LATER !! ---
 console.log("Adzuna Keys Loaded:", { ADZUNA_APP_ID, ADZUNA_APP_KEY });
-// --- !! NEW DEBUGGING LINE !! ---
-
 
 // --- Interfaces ---
 export interface CVAnalysis {
@@ -141,7 +139,7 @@ export class JobMatchingEngine {
       /^[a-zA-Z]+$/.test(word) &&
       !['with', 'have', 'been', 'work', 'team', 'project'].includes(word)
     );
-    return [...new Set(technicalWords)].slice(0, 2);
+    return [...new Set(technicalWords)].slice(0, 20);
   }
 
   // --- Real Job Fetching Logic ---
@@ -151,8 +149,12 @@ export class JobMatchingEngine {
       return [];
     }
 
-    const searchKeywords = [cvAnalysis.primaryRole, ...cvAnalysis.skills.slice(0, 3)].join(' ');
-    const searchLocation = filters.location && filters.location !== 'all' ? filters.location : 'United Kingdom';
+    // --- MODIFIED: Broader search query ---
+    const searchKeywords = cvAnalysis.primaryRole;
+    const searchLocation = filters.location && filters.location !== 'all' ? filters.location : 'USA';
+
+    // --- MODIFIED: Changed country to 'us' for a larger job market ---
+    const country = 'us';
 
     const params = new URLSearchParams({
       app_id: ADZUNA_APP_ID,
@@ -164,11 +166,15 @@ export class JobMatchingEngine {
     });
 
     try {
-      const response = await fetch(`https://api.adzuna.com/v1/api/jobs/gb/search/1?${params.toString()}`);
+      const response = await fetch(`https://api.adzuna.com/v1/api/jobs/${country}/search/1?${params.toString()}`);
       if (!response.ok) {
         throw new Error(`Adzuna API request failed with status ${response.status}`);
       }
       const data = await response.json();
+
+      if (!data.results || data.results.length === 0) {
+        return [];
+      }
 
       // Map API response to our JobOpportunity interface
       return data.results.map((job: any): JobOpportunity => ({
