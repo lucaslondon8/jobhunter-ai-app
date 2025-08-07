@@ -1,9 +1,13 @@
 // src/lib/jobMatching.ts
 
 // --- Environment Variables ---
-// These must be set in your .env.local file and in your Netlify settings
 const ADZUNA_APP_ID = import.meta.env.VITE_ADZUNA_APP_ID;
 const ADZUNA_APP_KEY = import.meta.env.VITE_ADZUNA_APP_KEY;
+
+// --- !! NEW DEBUGGING LINE !! ---
+console.log("Adzuna Keys Loaded:", { ADZUNA_APP_ID, ADZUNA_APP_KEY });
+// --- !! NEW DEBUGGING LINE !! ---
+
 
 // --- Interfaces ---
 export interface CVAnalysis {
@@ -137,7 +141,7 @@ export class JobMatchingEngine {
       /^[a-zA-Z]+$/.test(word) &&
       !['with', 'have', 'been', 'work', 'team', 'project'].includes(word)
     );
-    return [...new Set(technicalWords)].slice(0, 20);
+    return [...new Set(technicalWords)].slice(0, 2);
   }
 
   // --- Real Job Fetching Logic ---
