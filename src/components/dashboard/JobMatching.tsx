@@ -244,6 +244,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
             <option value="150k+">$150k+</option>
           </select>
 
+          {/* --- FINAL FIX: Updated location options to UK cities --- */}
           <select
             value={filters.location}
             onChange={(e) => handleFilterChange('location', e.target.value)}
@@ -252,10 +253,10 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
             <option value="">Location</option>
             <option value="all">All Locations</option>
             <option value="remote">Remote</option>
-            <option value="san-francisco">San Francisco</option>
-            <option value="new-york">New York</option>
-            <option value="austin">Austin</option>
-            <option value="seattle">Seattle</option>
+            <option value="london">London</option>
+            <option value="manchester">Manchester</option>
+            <option value="birmingham">Birmingham</option>
+            <option value="bristol">Bristol</option>
           </select>
 
           <select

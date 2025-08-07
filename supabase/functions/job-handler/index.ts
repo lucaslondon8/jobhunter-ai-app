@@ -45,8 +45,7 @@ async function searchJobs(req: Request) {
 
   const url = new URL(req.url);
   const what = url.searchParams.get('what') || 'software engineer';
-  // --- FINAL FIX: Default to London, but allow user input ---
-  let where = url.searchParams.get('where') || 'london';
+  const where = url.searchParams.get('where') || 'london';
   const country = 'gb'; // Hardcode to Great Britain
 
   const params = new URLSearchParams({
