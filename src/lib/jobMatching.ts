@@ -142,7 +142,7 @@ export class JobMatchingEngine {
     }
 
     const searchKeywords = cvAnalysis.primaryRole;
-    const searchLocation = filters.location && filters.location !== 'all' ? filters.location : 'us';
+    const searchLocation = filters.location && filters.location !== 'all' ? filters.location : 'london';
 
     const params = new URLSearchParams({
       what: searchKeywords,
@@ -172,7 +172,7 @@ export class JobMatchingEngine {
         title: job.title,
         company: job.company.display_name,
         location: job.location.display_name,
-        salary: job.salary_min ? `$${job.salary_min}` : 'Not specified',
+        salary: job.salary_min ? `£${job.salary_min}` : 'Not specified',
         type: job.contract_time || 'Full-time',
         posted: new Date(job.created).toLocaleDateString(),
         match: 0,

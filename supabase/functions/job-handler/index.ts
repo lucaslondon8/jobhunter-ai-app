@@ -45,8 +45,9 @@ async function searchJobs(req: Request) {
 
   const url = new URL(req.url);
   const what = url.searchParams.get('what') || 'software engineer';
-  const where = url.searchParams.get('where') || 'us';
-  const country = where.toLowerCase() === 'uk' ? 'gb' : 'us';
+  // --- FINAL FIX: Default to London, but allow user input ---
+  let where = url.searchParams.get('where') || 'london';
+  const country = 'gb'; // Hardcode to Great Britain
 
   const params = new URLSearchParams({
     app_id: ADZUNA_APP_ID,
@@ -60,6 +61,8 @@ async function searchJobs(req: Request) {
   try {
     const adzunaResponse = await fetch(`https://api.adzuna.com/v1/api/jobs/${country}/search/1?${params.toString()}`);
     if (!adzunaResponse.ok) {
+      const errorBody = await adzunaResponse.text();
+      console.error("Adzuna API Error:", errorBody);
       throw new Error(`Adzuna API request failed with status ${adzunaResponse.status}`);
     }
     const data = await adzunaResponse.json();
@@ -104,4 +107,3 @@ Deno.serve(async (req: Request) => {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 });
-
