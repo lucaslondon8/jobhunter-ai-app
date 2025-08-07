@@ -35,6 +35,20 @@ export interface JobOpportunity {
 // --- Main Job Matching Engine Class ---
 export class JobMatchingEngine {
   
+  // --- !! FIXED: Added the missing roleKeywords property back !! ---
+  private roleKeywords = {
+    'Software Engineer': ['software', 'engineer', 'developer', 'programming', 'coding', 'javascript', 'python', 'java', 'react', 'node'],
+    'Frontend Developer': ['frontend', 'front-end', 'react', 'vue', 'angular', 'html', 'css', 'javascript', 'ui', 'ux'],
+    'Backend Developer': ['backend', 'back-end', 'api', 'server', 'database', 'node.js', 'python', 'java', 'sql', 'microservices'],
+    'Full Stack Developer': ['full stack', 'fullstack', 'full-stack', 'frontend', 'backend', 'react', 'node', 'javascript'],
+    'Data Scientist': ['data science', 'machine learning', 'python', 'r', 'statistics', 'analytics', 'ai', 'tensorflow'],
+    'DevOps Engineer': ['devops', 'aws', 'docker', 'kubernetes', 'ci/cd', 'jenkins', 'terraform', 'cloud'],
+    'Product Manager': ['product manager', 'product', 'roadmap', 'strategy', 'stakeholder', 'agile', 'scrum'],
+    'UI/UX Designer': ['ui', 'ux', 'design', 'figma', 'sketch', 'adobe', 'user experience', 'user interface'],
+    'QA Engineer': ['qa', 'quality assurance', 'testing', 'automation', 'selenium', 'cypress', 'test'],
+    'Mobile Developer': ['mobile', 'ios', 'android', 'react native', 'flutter', 'swift', 'kotlin']
+  };
+
   // --- CV Analysis logic (no changes needed here) ---
   analyzeCV(cvData: any): CVAnalysis {
     const text = this.extractTextFromCV(cvData);
@@ -245,7 +259,6 @@ export class JobMatchingEngine {
 }
 
 // --- Cover Letter Generator ---
-// --- !! FIXED: Added the 'export' keyword back !! ---
 export class CoverLetterGenerator {
   generateCoverLetter(cvAnalysis: CVAnalysis, job: JobOpportunity, userProfile: any): string {
     const template = this.selectTemplate(job.role);
@@ -309,3 +322,4 @@ Best regards,
     return values[Math.floor(Math.random() * values.length)];
   }
 }
+
