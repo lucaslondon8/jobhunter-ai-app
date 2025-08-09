@@ -724,7 +724,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
                   />
                   
                   <div className="flex space-x-4">
-                    <button className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all">
+                    <button className="flex-1 bg-[#2765FF] text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all">
                       Copy to Clipboard
                     </button>
                     <button className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:border-blue-600 hover:text-blue-600 transition-all">
