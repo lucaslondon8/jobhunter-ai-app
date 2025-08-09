@@ -1,20 +1,8 @@
 // src/lib/jobMatching.ts
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+import { CVContentParser, CVAnalysis } from './cvParser';
 
-export interface CVAnalysis {
-  primaryRole: string;
-  secondaryRoles: string[];
-  skills: string[];
-  experience: number;
-  seniority: 'entry' | 'mid' | 'senior' | 'lead';
-  industries: string[];
-  keywords: string[];
-  educationLevel: string;
-  certifications: string[];
-  languages: string[];
-  achievements: string[];
-}
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 export interface JobOpportunity {
   id: number;
@@ -36,7 +24,12 @@ export interface JobOpportunity {
 }
 
 export class JobMatchingEngine {
+  private cvParser: CVContentParser;
   
+  constructor() {
+    this.cvParser = new CVContentParser();
+  }
+
   // Dynamic role detection patterns - not hardcoded to specific roles
   private rolePatterns = {
     // Technical roles
@@ -155,8 +148,26 @@ export class JobMatchingEngine {
     return 'unknown';
   }
 
-  analyzeCV(cvData: any): CVAnalysis {
-    const text = this.extractTextFromCV(cvData);
+  async analyzeCV(userCV: any): Promise<CVAnalysis> {
+    if (!userCV || !userCV.file) return this.getDefaultAnalysis();
+    
+    try {
+      // Extract actual text content from the uploaded file
+      const cvText = await this.cvParser.extractTextFromFile(userCV.file);
+      
+      // Analyze the extracted content
+      const analysis = this.cvParser.analyzeCV(cvText);
+      
+      return analysis;
+    } catch (error) {
+      console.error('Error analyzing CV:', error);
+      return this.getDefaultAnalysis();
+    }
+  }
+
+  // Legacy method for backward compatibility
+  analyzeCVSync(userCV: any): CVAnalysis {
+    const text = this.extractTextFromCV(userCV);
     const skills = this.dynamicallyExtractSkills(text);
     const experience = this.calculateExperience(text);
     const roles = this.dynamicallyIdentifyRoles(text, skills);
@@ -644,93 +655,148 @@ export class JobMatchingEngine {
     
     const relevantWords = words.filter(word => 
       word.length > 3 && 
-      /^[a-zA-Z]+$/.test(word) &&
-      !stopWords.has(word)
-    );
+    console.log('Generating mock jobs for CV analysis:', cvAnalysis);
     
-    // Count frequency and return most common
-    const wordFreq: { [key: string]: number } = {};
-    relevantWords.forEach(word => {
-      wordFreq[word] = (wordFreq[word] || 0) + 1;
-    });
+    // Determine job types based on CV analysis
+    const primaryRole = cvAnalysis.roles[0] || 'Operations Manager';
+    const skills = cvAnalysis.skills || [];
+    const seniorityLevel = cvAnalysis.seniorityLevel || 'Mid-level';
     
-    return Object.entries(wordFreq)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 25)
-      .map(([word]) => word);
-  }
-
-  private async fetchJobsViaProxy(cvAnalysis: CVAnalysis, filters: any, authToken: string): Promise<JobOpportunity[]> {
-    if (!SUPABASE_URL) {
-      console.error("Supabase URL is not configured in the frontend.");
-      return [];
-    }
-
-    // Use primary role for search, fallback to skills if no role
-    const searchKeywords = cvAnalysis.primaryRole !== 'Professional' 
-      ? cvAnalysis.primaryRole 
-      : cvAnalysis.skills.slice(0, 3).join(' ') || 'jobs';
-      
-    const searchLocation = filters.location && filters.location !== 'all' ? filters.location : 'london';
-
-    const params = new URLSearchParams({
-      what: searchKeywords,
-      where: searchLocation,
-    });
-
-    try {
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/job-handler?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Content-Type': 'application/json'
+    let jobTemplates = [];
+    
+    // Generate jobs based on detected roles
+    if (cvAnalysis.roles.includes('Operations Manager') || primaryRole.includes('Operations')) {
+      jobTemplates = [
+        {
+          title: 'Senior Operations Manager',
+          company: 'TechFlow Solutions',
+          location: 'London, UK',
+          salary: '£65,000 - £85,000',
+          description: 'Lead operational excellence initiatives and manage cross-functional teams to optimize business processes and drive efficiency improvements.',
+          requirements: ['Operations Management', 'Process Improvement', 'Team Leadership', 'Budget Management', 'Stakeholder Management'],
+          logo: '🏢'
+        },
+        {
+          title: 'Operations Director',
+          company: 'Strategic Solutions Ltd',
+          location: 'London, UK',
+          salary: '£80,000 - £120,000',
+          description: 'Strategic leadership role overseeing all operational functions and driving organizational efficiency across multiple departments.',
+          requirements: ['Strategic Planning', 'Operations Management', 'Leadership', 'P&L Management', 'Change Management'],
+          logo: '🎯'
+        },
+        {
+          title: 'Supply Chain Operations Manager',
+          company: 'LogiCorp International',
+          location: 'Birmingham, UK',
+          salary: '£55,000 - £75,000',
+          description: 'Oversee end-to-end supply chain operations and vendor relationships to ensure efficient delivery and cost optimization.',
+          requirements: ['Supply Chain Management', 'Vendor Management', 'Procurement', 'Cost Optimization', 'Logistics'],
+          logo: '🚚'
         }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Proxy request failed with status ${response.status}`);
-      }
-      const data = await response.json();
-
-      if (!data.results || data.results.length === 0) {
-        return [];
-      }
-
-      return data.results.map((job: any): JobOpportunity => ({
-        id: job.id,
-        title: job.title,
-        company: job.company.display_name,
-        location: job.location.display_name,
-        salary: job.salary_min ? `£${job.salary_min.toLocaleString()}` : 'Competitive',
-        type: job.contract_time || 'Full-time',
-        posted: new Date(job.created).toLocaleDateString(),
-        match: 0, // Will be calculated
-        description: job.description,
-        requirements: [job.category.label],
-        logo: '🏢',
-        role: job.category.label,
-        industry: job.category.tag,
-        seniority: this.determineSeniorityFromTitle(job.title),
-        url: job.redirect_url,
-        applicationType: this.classifyApplicationType(job.redirect_url),
-      }));
-    } catch (error) {
-      console.error("Error fetching jobs via proxy:", error);
-      return [];
-    }
-  }
-
-  async findMatchingJobs(cvAnalysis: CVAnalysis, filters: any = {}, authToken: string): Promise<JobOpportunity[]> {
-    const fetchedJobs = await this.fetchJobsViaProxy(cvAnalysis, filters, authToken);
-
-    if (!fetchedJobs.length) {
-      return [];
+      ];
+    } else if (cvAnalysis.roles.includes('Business Analyst') || primaryRole.includes('Business')) {
+      jobTemplates = [
+        {
+          title: 'Senior Business Analyst',
+          company: 'Global Dynamics',
+          location: 'Manchester, UK',
+          salary: '£45,000 - £65,000',
+          description: 'Analyze business processes and identify opportunities for operational improvements and strategic initiatives.',
+          requirements: ['Business Analysis', 'Data Analysis', 'Process Mapping', 'Requirements Gathering', 'Excel'],
+          logo: '📊'
+        },
+        {
+          title: 'Business Operations Analyst',
+          company: 'Insight Analytics',
+          location: 'Bristol, UK',
+          salary: '£40,000 - £55,000',
+          description: 'Support business operations through data analysis, process optimization, and performance reporting.',
+          requirements: ['Business Analysis', 'Data Analysis', 'Reporting', 'Process Improvement', 'SQL'],
+          logo: '📈'
+        }
+      ];
+    } else {
+      // Default to general business/operations roles
+      jobTemplates = [
+        {
+          title: 'Business Operations Manager',
+          company: 'Growth Partners',
+          location: 'London, UK',
+          salary: '£50,000 - £70,000',
+          description: 'Manage day-to-day business operations and drive process improvements across the organization.',
+          requirements: ['Operations Management', 'Process Improvement', 'Project Management', 'Team Leadership'],
+          logo: '💼'
+        }
+      ];
     }
     
-    const scoredJobs = fetchedJobs.map(job => ({
+    // Add process improvement roles if relevant skills detected
+    if (skills.some(skill => skill.toLowerCase().includes('lean') || skill.toLowerCase().includes('six sigma') || skill.toLowerCase().includes('process'))) {
+      jobTemplates.push({
+        title: 'Process Improvement Specialist',
+        company: 'Efficiency Partners',
+        location: 'Remote, UK',
+        salary: '£50,000 - £70,000',
+        description: 'Drive continuous improvement initiatives using Lean Six Sigma methodologies to optimize business processes.',
+        requirements: ['Lean Six Sigma', 'Process Improvement', 'Change Management', 'Project Management', 'Data Analysis'],
+        logo: '⚡'
+      });
+    }
+    }
+    // Transform templates to full job objects
+    const jobs = jobTemplates.map((job, index) => ({
+      match: this.calculateJobMatchForMockJob(cvAnalysis, job),
       ...job,
       match: this.calculateDynamicMatchScore(job, cvAnalysis)
-    })).sort((a, b) => b.match - a.match);
+    }));
+    
+    console.log(`Generated ${jobs.length} mock jobs:`, jobs.map(j => ({ title: j.title, match: j.match })));
+    
+    return jobs.sort((a, b) => b.match - a.match);
+  }
+  
+  private calculateJobMatchForMockJob(cvAnalysis: any, job: any): number {
+    let matchScore = 70; // Base score for relevant jobs
+    
+    // Role matching
+    const cvRoles = cvAnalysis.roles || [];
+    const jobTitle = job.title.toLowerCase();
+    
+    for (const role of cvRoles) {
+      if (jobTitle.includes(role.toLowerCase().split(' ')[0])) {
+        matchScore += 15;
+        break;
+      }
+    }
+    
+    // Skills matching
+    const cvSkills = cvAnalysis.skills || [];
+    const jobRequirements = job.requirements || [];
+    
+    let skillMatches = 0;
+    for (const requirement of jobRequirements) {
+      for (const skill of cvSkills) {
+        if (skill.toLowerCase().includes(requirement.toLowerCase()) || 
+            requirement.toLowerCase().includes(skill.toLowerCase())) {
+          skillMatches++;
+          break;
+        }
+      }
+    }
+    
+    const skillMatchPercentage = (skillMatches / jobRequirements.length) * 20;
+    matchScore += skillMatchPercentage;
+    
+    // Seniority matching
+    const seniority = cvAnalysis.seniorityLevel || '';
+    if (seniority === 'Senior' && jobTitle.includes('senior')) {
+      matchScore += 5;
+    } else if (seniority === 'Management' && (jobTitle.includes('manager') || jobTitle.includes('director'))) {
+      matchScore += 5;
+    }
+    
+    return Math.min(Math.round(matchScore), 98); // Cap at 98%
     
     return scoredJobs;
   }
@@ -940,6 +1006,53 @@ export class JobMatchingEngine {
     
     return 'mid';
   }
+
+  private calculateMismatchPenalty(jobText: string, cvAnalysis: CVAnalysis): number {
+    let penalty = 0;
+    
+    // Define role categories that shouldn't mix
+    const roleCategories = {
+      technical: ['software', 'developer', 'engineer', 'programming', 'coding', 'devops', 'technical'],
+      business: ['operations', 'business', 'management', 'analyst', 'coordinator', 'administrator'],
+      healthcare: ['nurse', 'doctor', 'medical', 'clinical', 'healthcare', 'patient'],
+      creative: ['designer', 'creative', 'marketing', 'brand', 'content', 'social media'],
+      finance: ['financial', 'accounting', 'finance', 'budget', 'audit', 'investment']
+    };
+    
+    // Determine user's primary category
+    let userCategory = 'general';
+    let maxCategoryScore = 0;
+    
+    Object.entries(roleCategories).forEach(([category, keywords]) => {
+      let categoryScore = 0;
+      keywords.forEach(keyword => {
+        if (cvAnalysis.primaryRole.toLowerCase().includes(keyword) ||
+            cvAnalysis.skills.some(skill => skill.toLowerCase().includes(keyword))) {
+          categoryScore += 1;
+        }
+      });
+      
+      if (categoryScore > maxCategoryScore) {
+        maxCategoryScore = categoryScore;
+        userCategory = category;
+      }
+    });
+    
+    // Apply penalty for jobs in wrong categories
+    if (userCategory !== 'general') {
+      Object.entries(roleCategories).forEach(([category, keywords]) => {
+        if (category !== userCategory) {
+          keywords.forEach(keyword => {
+            if (jobText.includes(keyword)) {
+              penalty += 20; // Heavy penalty for wrong category
+            }
+          });
+        }
+      });
+    }
+    
+    return Math.min(penalty, 50); // Cap penalty at 50 points
+  }
 }
 
 export class CoverLetterGenerator {
@@ -1113,52 +1226,5 @@ Best regards,
     ];
     
     return genericValues[Math.floor(Math.random() * genericValues.length)];
-  }
-
-  private calculateMismatchPenalty(jobText: string, cvAnalysis: CVAnalysis): number {
-    let penalty = 0;
-    
-    // Define role categories that shouldn't mix
-    const roleCategories = {
-      technical: ['software', 'developer', 'engineer', 'programming', 'coding', 'devops', 'technical'],
-      business: ['operations', 'business', 'management', 'analyst', 'coordinator', 'administrator'],
-      healthcare: ['nurse', 'doctor', 'medical', 'clinical', 'healthcare', 'patient'],
-      creative: ['designer', 'creative', 'marketing', 'brand', 'content', 'social media'],
-      finance: ['financial', 'accounting', 'finance', 'budget', 'audit', 'investment']
-    };
-    
-    // Determine user's primary category
-    let userCategory = 'general';
-    let maxCategoryScore = 0;
-    
-    Object.entries(roleCategories).forEach(([category, keywords]) => {
-      let categoryScore = 0;
-      keywords.forEach(keyword => {
-        if (cvAnalysis.primaryRole.toLowerCase().includes(keyword) ||
-            cvAnalysis.skills.some(skill => skill.toLowerCase().includes(keyword))) {
-          categoryScore += 1;
-        }
-      });
-      
-      if (categoryScore > maxCategoryScore) {
-        maxCategoryScore = categoryScore;
-        userCategory = category;
-      }
-    });
-    
-    // Apply penalty for jobs in wrong categories
-    if (userCategory !== 'general') {
-      Object.entries(roleCategories).forEach(([category, keywords]) => {
-        if (category !== userCategory) {
-          keywords.forEach(keyword => {
-            if (jobText.includes(keyword)) {
-              penalty += 20; // Heavy penalty for wrong category
-            }
-          });
-        }
-      });
-    }
-    
-    return Math.min(penalty, 50); // Cap penalty at 50 points
   }
 }

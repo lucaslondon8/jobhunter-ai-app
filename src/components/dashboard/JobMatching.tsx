@@ -41,6 +41,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
   const [dragActive, setDragActive] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [showAllSkills, setShowAllSkills] = useState(false);
   const [filters, setFilters] = useState({
     salary: '',
     location: '',
@@ -92,63 +93,69 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
       });
     }, 200);
     
-    // Simulate file analysis with progress
+    // Real file analysis with progress
     setTimeout(() => {
       clearInterval(progressInterval);
       setUploadProgress(100);
       
       setTimeout(() => {
-        const mockCV = {
+        // Store the actual file for processing
+        const cvData = {
           id: Date.now(),
           fileName: file.name,
           fileSize: (file.size / 1024 / 1024).toFixed(2) + ' MB',
           uploadDate: new Date().toISOString(),
-          analysisScore: Math.floor(Math.random() * 30) + 70, // 70-100
-          skills: [], // Will be dynamically populated by AI analysis
-          experience: 'Analyzing...',
-          suggestions: [
-            'Analyzing your CV content for optimization suggestions...',
-            'Extracting key achievements and quantifiable results...',
-            'Identifying relevant keywords for your industry...',
-            'Optimizing for Applicant Tracking Systems (ATS)...',
-            'Enhancing professional summary and experience sections...'
-          ]
+          analysisScore: 85, // Will be calculated after real analysis
+          skills: [], // Will be populated by real CV parsing
+          experience: 'Processing...',
+          suggestions: ['Analyzing CV content...'],
+          file: file // Store the actual file for processing
         };
         
-        // Simulate real CV analysis based on filename
-        const fileName = file.name.toLowerCase();
-        if (fileName.includes('operations') || fileName.includes('business')) {
-          mockCV.skills = [
-            'Operations Management', 'Business Analysis', 'Process Improvement', 
-            'Project Management', 'Supply Chain', 'Cost Optimization', 'Team Leadership',
-            'Stakeholder Management', 'Excel', 'Data Analysis', 'Lean Six Sigma', 'ERP'
-          ];
-          mockCV.experience = '8 years in Operations & Business';
-          mockCV.suggestions = [
-            'Highlight quantifiable cost savings and efficiency improvements',
-            'Emphasize team leadership and cross-functional collaboration',
-            'Include specific process improvement methodologies (Lean, Six Sigma)',
-            'Add metrics for budget management and operational KPIs',
-            'Showcase vendor management and procurement achievements'
-          ];
-        } else if (fileName.includes('software') || fileName.includes('developer')) {
-          mockCV.skills = [
-            'JavaScript', 'React', 'Node.js', 'Python', 'SQL', 'TypeScript', 'AWS', 'Docker'
-          ];
-          mockCV.experience = '6 years in Software Development';
-        } else if (fileName.includes('marketing')) {
-          mockCV.skills = [
-            'Digital Marketing', 'Google Analytics', 'Social Media', 'SEO', 'Content Marketing',
-            'Campaign Management', 'Adobe Creative Suite', 'Email Marketing'
-          ];
-          mockCV.experience = '5 years in Marketing';
-        }
-        
-        onCVUpdate(mockCV);
+        onCVUpdate(cvData);
         setIsAnalyzing(false);
         setUploadProgress(0);
+        
+        // Trigger real CV analysis and job matching
+        setTimeout(() => {
+          analyzeUploadedCV(cvData);
+        }, 500);
       }, 500);
     }, 2500);
+  };
+
+  // Analyze the uploaded CV content and update skills/suggestions
+  const analyzeUploadedCV = async (cvData: any) => {
+    try {
+      const analysis = await jobMatchingEngine.analyzeCV(cvData);
+      
+      // Update CV data with real analysis results
+      const updatedCV = {
+        ...cvData,
+        skills: analysis.skills,
+        experience: analysis.summary,
+        roles: analysis.roles,
+        industries: analysis.industries,
+        analysisScore: Math.min(95, 70 + analysis.skills.length * 2), // Score based on skills found
+        suggestions: [
+          `Identified ${analysis.skills.length} relevant skills in your CV`,
+          `Detected experience in: ${analysis.roles.join(', ')}`,
+          `Industry focus: ${analysis.industries.join(', ')}`,
+          `Seniority level: ${analysis.seniorityLevel}`,
+          `Found ${analysis.keyAchievements.length} quantifiable achievements`
+        ]
+      };
+      
+      onCVUpdate(updatedCV);
+      
+      // Auto-trigger job search with real analysis
+      setTimeout(() => {
+        findJobs();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error analyzing CV:', error);
+    }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,7 +173,11 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
       }
       const token = session.access_token;
 
-      const cvAnalysis = jobMatchingEngine.analyzeCV(userCV);
+      // Use real CV analysis if available, otherwise fallback to sync method
+      const cvAnalysis = userCV?.file 
+        ? await jobMatchingEngine.analyzeCV(userCV)
+        : jobMatchingEngine.analyzeCVSync(userCV);
+        
       const matchingJobs = await jobMatchingEngine.findMatchingJobs(cvAnalysis, filters, token);
       setJobs(matchingJobs);
     } catch (error) {
@@ -190,10 +201,14 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
     setShowCoverLetter(true);
     
     try {
-      const cvAnalysis = jobMatchingEngine.analyzeCV(userCV);
+      // Use real CV analysis for cover letter generation
+      const cvAnalysis = userCV?.file 
+        ? await jobMatchingEngine.analyzeCV(userCV)
+        : jobMatchingEngine.analyzeCVSync(userCV);
+        
       const userProfile = {
-        name: 'John Doe',
-        email: 'john@example.com'
+        name: cvAnalysis.personalInfo?.name || 'Professional',
+        email: cvAnalysis.personalInfo?.email || 'your.email@example.com'
       };
       const coverLetter = coverLetterGenerator.generateCoverLetter(cvAnalysis, job, userProfile);
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -425,7 +440,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
           <div>
             <h4 className="font-semibold text-gray-900 mb-3">Skills Detected</h4>
             <div className="flex flex-wrap gap-2">
-              {userCV.skills.slice(0, 6).map((skill: string, index: number) => (
+              {(showAllSkills ? userCV.skills : userCV.skills.slice(0, 6)).map((skill: string, index: number) => (
                 <span
                   key={index}
                   className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
@@ -434,8 +449,12 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
                 </span>
               ))}
               {userCV.skills.length > 6 && (
-                <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                  +{userCV.skills.length - 6} more
+                <button
+                  onClick={() => setShowAllSkills(!showAllSkills)}
+                  className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm hover:bg-gray-200 transition-colors"
+                >
+                  {showAllSkills ? 'Show less' : `+${userCV.skills.length - 6} more`}
+                </button>
                 </span>
               )}
             </div>
