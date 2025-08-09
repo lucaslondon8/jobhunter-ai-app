@@ -32,6 +32,7 @@ export interface JobOpportunity {
   industry: string;
   seniority: string;
   url?: string;
+  applicationType: 'easy_apply' | 'external_form_simple' | 'external_form_complex' | 'api_direct' | 'unknown';
 }
 
 export class JobMatchingEngine {
@@ -48,6 +49,56 @@ export class JobMatchingEngine {
     'QA Engineer': ['qa', 'quality assurance', 'testing', 'automation', 'selenium', 'cypress', 'test'],
     'Mobile Developer': ['mobile', 'ios', 'android', 'react native', 'flutter', 'swift', 'kotlin']
   };
+
+  private classifyApplicationType(jobUrl: string): 'easy_apply' | 'external_form_simple' | 'external_form_complex' | 'api_direct' | 'unknown' {
+    if (!jobUrl) return 'unknown';
+    
+    const url = jobUrl.toLowerCase();
+    
+    // LinkedIn Easy Apply detection
+    if (url.includes('linkedin.com') && url.includes('easy-apply')) {
+      return 'easy_apply';
+    }
+    
+    // Indeed Easy Apply detection
+    if (url.includes('indeed.com') && url.includes('apply')) {
+      return 'easy_apply';
+    }
+    
+    // Known job boards with simple forms
+    const simpleFormDomains = [
+      'glassdoor.com',
+      'monster.com',
+      'ziprecruiter.com',
+      'careerbuilder.com'
+    ];
+    
+    if (simpleFormDomains.some(domain => url.includes(domain))) {
+      return 'external_form_simple';
+    }
+    
+    // Company career pages (usually more complex)
+    const complexFormIndicators = [
+      '/careers/',
+      '/jobs/',
+      '/apply/',
+      'workday.com',
+      'greenhouse.io',
+      'lever.co',
+      'bamboohr.com'
+    ];
+    
+    if (complexFormIndicators.some(indicator => url.includes(indicator))) {
+      return 'external_form_complex';
+    }
+    
+    // API direct (for future integration with job board APIs)
+    // This would be determined by partnerships or API availability
+    // For now, we'll leave this as a placeholder
+    
+    // Default to unknown for unclassified URLs
+    return 'unknown';
+  }
 
   analyzeCV(cvData: any): CVAnalysis {
     const text = this.extractTextFromCV(cvData);
@@ -187,6 +238,7 @@ export class JobMatchingEngine {
         industry: job.category.tag,
         seniority: this.determineSeniorityFromTitle(job.title),
         url: job.redirect_url,
+        applicationType: this.classifyApplicationType(job.redirect_url),
       }));
     } catch (error) {
       console.error("Error fetching jobs via proxy:", error);
