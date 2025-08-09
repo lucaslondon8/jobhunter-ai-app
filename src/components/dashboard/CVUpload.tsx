@@ -19,6 +19,7 @@ interface CVUploadProps {
 const CVUpload: React.FC<CVUploadProps> = ({ userCV, onCVUpdate }) => {
   const [dragActive, setDragActive] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -41,6 +42,51 @@ const CVUpload: React.FC<CVUploadProps> = ({ userCV, onCVUpdate }) => {
   };
 
   const handleFileUpload = (file: File) => {
+    setIsAnalyzing(true);
+    setUploadProgress(0);
+    
+    // Simulate file upload progress
+    const progressInterval = setInterval(() => {
+      setUploadProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return 90;
+        }
+        return prev + 10;
+      });
+    }, 200);
+    
+    // Simulate file analysis with progress
+    setTimeout(() => {
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      
+      setTimeout(() => {
+        const mockCV = {
+          id: Date.now(),
+          fileName: file.name,
+          fileSize: (file.size / 1024 / 1024).toFixed(2) + ' MB',
+          uploadDate: new Date().toISOString(),
+          analysisScore: Math.floor(Math.random() * 30) + 70, // 70-100
+          skills: ['JavaScript', 'React', 'Node.js', 'Python', 'SQL', 'TypeScript', 'AWS', 'Docker'],
+          experience: '5 years',
+          suggestions: [
+            'Add more quantifiable achievements with specific metrics',
+            'Include relevant keywords for ATS optimization',
+            'Highlight leadership and team collaboration experience',
+            'Add recent certifications and continuous learning',
+            'Optimize formatting for better readability'
+          ]
+        };
+        
+        onCVUpdate(mockCV);
+        setIsAnalyzing(false);
+        setUploadProgress(0);
+      }, 500);
+    }, 2500);
+  };
+
+  const handleFileUploadOld = (file: File) => {
     setIsAnalyzing(true);
     
     // Simulate file analysis
@@ -238,9 +284,19 @@ const CVUpload: React.FC<CVUploadProps> = ({ userCV, onCVUpdate }) => {
           <div className="space-y-3">
             {userCV.suggestions.map((suggestion: string, index: number) => (
               <div key={index} className="flex items-start space-x-3">
-                <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />
-                <p className="text-gray-700">{suggestion}</p>
-              </div>
+              <div className="w-full max-w-md">
+                <div className="bg-gray-200 rounded-full h-3 mb-2">
+                  <div 
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300" 
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-600 text-center">{uploadProgress}% complete</p>
+              <p className="text-gray-600 text-center">
+                {uploadProgress < 50 ? 'Uploading and parsing your CV...' :
+                 uploadProgress < 90 ? 'Analyzing skills and experience...' :
+                 'Generating optimization suggestions...'}
+              </p>
             ))}
           </div>
         </div>

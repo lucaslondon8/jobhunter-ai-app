@@ -58,7 +58,12 @@ export const applicationService = {
   },
 
   // Submit bulk job applications
-  async submitApplications(jobs: any[], userProfile: any, authToken: string) {
+  async submitApplications(
+    jobs: any[], 
+    userProfile: any, 
+    authToken: string,
+    progressCallback?: (jobId: string, status: string) => void
+  ) {
     // Group jobs by application type for optimized processing
     const jobsByType = this.groupJobsByApplicationType(jobs);
     const results = [];
@@ -68,11 +73,19 @@ export const applicationService = {
     // Process each application type with specialized handlers
     for (const [applicationType, typeJobs] of Object.entries(jobsByType)) {
       try {
+        // Update progress for jobs of this type
+        if (progressCallback) {
+          typeJobs.forEach(job => {
+            progressCallback(job.id.toString(), `Processing ${applicationType} application...`);
+          });
+        }
+        
         const result = await this.processApplicationsByType(
           applicationType as any,
           typeJobs,
           userProfile,
-          authToken
+          authToken,
+          progressCallback
         );
         results.push(result);
         totalSuccessful += result.successful;
@@ -116,9 +129,17 @@ export const applicationService = {
     applicationType: 'easy_apply' | 'external_form_simple' | 'external_form_complex' | 'api_direct' | 'unknown',
     jobs: any[],
     userProfile: any,
-    authToken: string
+    authToken: string,
+    progressCallback?: (jobId: string, status: string) => void
   ) {
     const endpoint = this.getEndpointForApplicationType(applicationType);
+    
+    // Update progress
+    if (progressCallback) {
+      jobs.forEach(job => {
+        progressCallback(job.id.toString(), `Submitting to ${endpoint}...`);
+      });
+    }
     
     const response = await fetch(`${supabaseUrl}/functions/v1/${endpoint}`, {
       method: 'POST',

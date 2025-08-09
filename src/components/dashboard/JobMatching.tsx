@@ -30,6 +30,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
   const [selectedJobForCover, setSelectedJobForCover] = useState<any>(null);
   const [generatedCoverLetter, setGeneratedCoverLetter] = useState('');
   const [isGeneratingCover, setIsGeneratingCover] = useState(false);
+  const [applicationProgress, setApplicationProgress] = useState<{[key: string]: string}>({});
   const [filters, setFilters] = useState({
     salary: '',
     location: '',
@@ -107,6 +108,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
     if (selectedJobs.length === 0) return;
 
     setIsApplying(true);
+    setApplicationProgress({});
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -117,10 +119,23 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
 
       const selectedJobData = jobs.filter(job => selectedJobs.includes(job.id));
       
+      // Initialize progress tracking
+      const progressMap: {[key: string]: string} = {};
+      selectedJobData.forEach(job => {
+        progressMap[job.id] = 'Starting application...';
+      });
+      setApplicationProgress(progressMap);
+      
       const result = await applicationService.submitApplications(
         selectedJobData,
         userCV,
-        session.access_token
+        session.access_token,
+        (jobId: string, status: string) => {
+          setApplicationProgress(prev => ({
+            ...prev,
+            [jobId]: status
+          }));
+        }
       );
 
       const localApplications = selectedJobData.map(job => ({
@@ -136,7 +151,21 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
       setSelectedJobs([]);
 
       const { successful, failed, total } = result.summary;
-      const message = `Applied to ${successful}/${total} jobs successfully!${failed > 0 ? ` ${failed} applications need manual review.` : ''}`;
+      
+      let message = `✅ Applied to ${successful}/${total} jobs successfully!`;
+      if (failed > 0) {
+        message += `\n⚠️ ${failed} applications need manual review or failed.`;
+      }
+      
+      // Show detailed results
+      const manualReviewJobs = result.details
+        .flatMap(detail => detail.jobs)
+        .filter(job => job.requiresManualReview)
+        .length;
+      
+      if (manualReviewJobs > 0) {
+        message += `\n📋 ${manualReviewJobs} jobs flagged for manual application.`;
+      }
       
       alert(message);
 
@@ -145,6 +174,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
       alert(`Failed to submit applications: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsApplying(false);
+      setApplicationProgress({});
     }
   };
 
@@ -203,7 +233,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
           <button
             onClick={handleBulkApply}
             disabled={isApplying}
-            className={`text-white px-6 py-3 rounded-xl font-semibold transition-all transform flex items-center space-x-2 ${
+            className={`text-white px-6 py-3 rounded-xl font-semibold transition-all transform flex items-center space-x-2 relative ${
               isApplying 
                 ? 'bg-gray-400 cursor-not-allowed' 
                 : 'bg-gradient-to-r from-green-600 to-blue-600 hover:shadow-lg hover:scale-105'
@@ -212,7 +242,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
             {isApplying ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Applying...</span>
+                <span>Applying to {selectedJobs.length} jobs...</span>
               </>
             ) : (
               <>
@@ -223,6 +253,30 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply }) => {
           </button>
         )}
       </div>
+
+      {/* Application Progress */}
+      {isApplying && Object.keys(applicationProgress).length > 0 && (
+        <div className="bg-white rounded-2xl p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Application Progress</h3>
+          <div className="space-y-3">
+            {Object.entries(applicationProgress).map(([jobId, status]) => {
+              const job = jobs.find(j => j.id.toString() === jobId);
+              return (
+                <div key={jobId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-900">{job?.title}</p>
+                    <p className="text-sm text-gray-600">{job?.company}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm text-gray-700">{status}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white rounded-2xl p-6 border border-gray-200">

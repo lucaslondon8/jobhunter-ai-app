@@ -15,9 +15,10 @@ import {
 
 interface ApplicationsProps {
   applications: any[];
+  isLoading?: boolean;
 }
 
-const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
+const Applications: React.FC<ApplicationsProps> = ({ applications, isLoading = false }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -38,6 +39,10 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'processing':
+        return 'bg-blue-100 text-blue-800';
+      case 'submitted':
+        return 'bg-green-100 text-green-800';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
       case 'interview':
@@ -45,6 +50,8 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
       case 'accepted':
         return 'bg-green-100 text-green-800';
       case 'rejected':
+        return 'bg-red-100 text-red-800';
+      case 'failed':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -60,6 +67,8 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
 
   const stats = {
     total: applications.length,
+    processing: applications.filter(app => app.status === 'processing').length,
+    submitted: applications.filter(app => app.status === 'submitted').length,
     pending: applications.filter(app => app.status === 'pending').length,
     interview: applications.filter(app => app.status === 'interview').length,
     accepted: applications.filter(app => app.status === 'accepted').length,
@@ -85,15 +94,31 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
 
         <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
-            <Clock className="w-8 h-8 text-yellow-600" />
-            <span className="text-2xl font-bold text-gray-900">{stats.pending}</span>
+            <Clock className="w-8 h-8 text-blue-600" />
+            <span className="text-2xl font-bold text-gray-900">{stats.processing}</span>
           </div>
-          <h3 className="font-semibold text-gray-900">Pending</h3>
+          <h3 className="font-semibold text-gray-900">Processing</h3>
         </div>
 
         <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
-            <Calendar className="w-8 h-8 text-blue-600" />
+            <CheckCircle className="w-8 h-8 text-green-600" />
+            <span className="text-2xl font-bold text-gray-900">{stats.submitted}</span>
+          </div>
+          <h3 className="font-semibold text-gray-900">Submitted</h3>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <Clock className="w-8 h-8 text-yellow-600" />
+            <span className="text-2xl font-bold text-gray-900">{stats.pending}</span>
+          </div>
+          <h3 className="font-semibold text-gray-900">Pending Review</h3>
+        </div>
+
+        <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <Calendar className="w-8 h-8 text-purple-600" />
             <span className="text-2xl font-bold text-gray-900">{stats.interview}</span>
           </div>
           <h3 className="font-semibold text-gray-900">Interviews</h3>
@@ -101,18 +126,10 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
 
         <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+            <CheckCircle className="w-8 h-8 text-emerald-600" />
             <span className="text-2xl font-bold text-gray-900">{stats.accepted}</span>
           </div>
-          <h3 className="font-semibold text-gray-900">Accepted</h3>
-        </div>
-
-        <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all">
-          <div className="flex items-center justify-between mb-2">
-            <XCircle className="w-8 h-8 text-red-600" />
-            <span className="text-2xl font-bold text-gray-900">{stats.rejected}</span>
-          </div>
-          <h3 className="font-semibold text-gray-900">Rejected</h3>
+          <h3 className="font-semibold text-gray-900">Offers</h3>
         </div>
       </div>
 
@@ -138,17 +155,25 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
               className="border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Status</option>
+              <option value="processing">Processing</option>
+              <option value="submitted">Submitted</option>
               <option value="pending">Pending</option>
               <option value="interview">Interview</option>
               <option value="accepted">Accepted</option>
               <option value="rejected">Rejected</option>
+              <option value="failed">Failed</option>
             </select>
           </div>
         </div>
       </div>
 
       {/* Applications List */}
-      {filteredApplications.length > 0 ? (
+      {isLoading ? (
+        <div className="bg-white rounded-2xl p-12 border border-gray-200 text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your applications...</p>
+        </div>
+      ) : filteredApplications.length > 0 ? (
         <div className="space-y-4">
           {filteredApplications.map((application) => (
             <div key={application.id} className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all">
@@ -173,6 +198,12 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
                       <Calendar className="w-4 h-4" />
                       <span>Applied {new Date(application.appliedDate).toLocaleDateString()}</span>
                     </div>
+                    {application.location && (
+                      <div className="flex items-center space-x-1">
+                        <MapPin className="w-4 h-4" />
+                        <span>{application.location}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center space-x-4">
@@ -185,6 +216,13 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
                       <button className="text-green-600 hover:text-green-700 font-medium flex items-center space-x-1 transition-colors">
                         <Calendar className="w-4 h-4" />
                         <span>Schedule Interview</span>
+                      </button>
+                    )}
+                    
+                    {application.status === 'failed' && (
+                      <button className="text-blue-600 hover:text-blue-700 font-medium flex items-center space-x-1 transition-colors">
+                        <ExternalLink className="w-4 h-4" />
+                        <span>Apply Manually</span>
                       </button>
                     )}
                   </div>
