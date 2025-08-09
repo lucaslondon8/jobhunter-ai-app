@@ -770,15 +770,21 @@ export class JobMatchingEngine {
     // Transform templates to full job objects
     const jobs = jobTemplates.map((job, index) => ({
       id: index + 1,
+      title: job.title,
+      company: job.company,
+      location: job.location,
+      salary: job.salary,
       type: 'Full-time',
-      posted: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      posted: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      match: this.calculateJobMatchForMockJob(cvAnalysis, job),
+      description: job.description,
+      requirements: job.requirements,
+      logo: job.logo,
       role: job.title,
-      industry: 'Business Operations',
+      industry: 'Business',
       seniority: seniorityLevel,
       url: `https://example.com/jobs/${index + 1}`,
-      applicationType: 'external_form_simple' as const,
-      match: this.calculateJobMatchForMockJob(cvAnalysis, job),
-      ...job
+      applicationType: 'external_form_simple' as const
     }));
     
     console.log(`Generated ${jobs.length} mock jobs:`, jobs.map(j => ({ title: j.title, match: j.match })));
