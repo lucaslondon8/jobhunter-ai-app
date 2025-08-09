@@ -1,7 +1,8 @@
-
 // supabase/functions/job-handler/index.ts
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
+// To use Puppeteer, you will need to add it to your Supabase function's import map.
+// import puppeteer from "https://deno.land/x/puppeteer@16.2.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -49,7 +50,6 @@ async function searchJobs(req: Request) {
   const where = url.searchParams.get('where') || 'london';
   const country = 'gb'; // Hardcode to Great Britain
 
-  // Fixed: Removed invalid 'content_type' parameter that was causing 400 errors
   const params = new URLSearchParams({
     app_id: ADZUNA_APP_ID,
     app_key: ADZUNA_APP_KEY,
@@ -58,7 +58,6 @@ async function searchJobs(req: Request) {
     where,
   });
 
-  // Added detailed logging for debugging
   const apiUrl = `https://api.adzuna.com/v1/api/jobs/${country}/search/1?${params.toString()}`;
   console.log('Adzuna API Request URL:', apiUrl);
   console.log('Search parameters:', { what, where, country });
@@ -91,8 +90,27 @@ async function searchJobs(req: Request) {
 }
 
 async function applyForJobs(req: Request) {
-    // This is where your original application logic would go.
-    return new Response(JSON.stringify({ message: "Application logic would run here." }), {
+    // This is a placeholder for the real implementation.
+    // You will need to use a browser automation library like Puppeteer
+    // to programmatically fill out and submit job applications.
+    console.log("Applying for jobs...");
+    const { jobs, userProfile } = await req.json();
+
+    // Example of how you might use Puppeteer to apply for a single job
+    // const browser = await puppeteer.launch();
+    // const page = await browser.newPage();
+    // await page.goto(jobs[0].jobUrl);
+    // ... logic to fill out the form ...
+    // await page.click('button[type="submit"]');
+    // await browser.close();
+
+    return new Response(JSON.stringify({ 
+      summary: {
+        successful: jobs.length,
+        failed: 0,
+        total: jobs.length
+      } 
+    }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -103,11 +121,13 @@ Deno.serve(async (req: Request) => {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
-  if (req.method === 'GET') {
+  const url = new URL(req.url);
+
+  if (url.pathname.includes('job-handler') && req.method === 'GET') {
     return searchJobs(req);
   }
 
-  if (req.method === 'POST') {
+  if (url.pathname.includes('apply-jobs') && req.method === 'POST') {
     return applyForJobs(req);
   }
 

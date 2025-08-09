@@ -1,5 +1,9 @@
 // src/lib/jobMatching.ts
 
+// For a production-ready application, you would integrate a more
+// sophisticated NLP library here.
+// Example: import nlp from 'compromise';
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 export interface CVAnalysis {
@@ -312,4 +316,3 @@ Best regards,
     return values[Math.floor(Math.random() * values.length)];
   }
 }
-
