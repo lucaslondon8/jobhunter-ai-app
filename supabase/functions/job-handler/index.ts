@@ -89,33 +89,6 @@ async function searchJobs(req: Request) {
   }
 }
 
-async function applyForJobs(req: Request) {
-    // This is a placeholder for the real implementation.
-    // You will need to use a browser automation library like Puppeteer
-    // to programmatically fill out and submit job applications.
-    console.log("Applying for jobs...");
-    const { jobs, userProfile } = await req.json();
-
-    // Example of how you might use Puppeteer to apply for a single job
-    // const browser = await puppeteer.launch();
-    // const page = await browser.newPage();
-    // await page.goto(jobs[0].jobUrl);
-    // ... logic to fill out the form ...
-    // await page.click('button[type="submit"]');
-    // await browser.close();
-
-    return new Response(JSON.stringify({ 
-      summary: {
-        successful: jobs.length,
-        failed: 0,
-        total: jobs.length
-      } 
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -125,10 +98,6 @@ Deno.serve(async (req: Request) => {
 
   if (url.pathname.includes('job-handler') && req.method === 'GET') {
     return searchJobs(req);
-  }
-
-  if (url.pathname.includes('apply-jobs') && req.method === 'POST') {
-    return applyForJobs(req);
   }
 
   return new Response(JSON.stringify({ error: 'Method not allowed' }), {
