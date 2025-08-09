@@ -59,13 +59,75 @@ export const applicationService = {
 
   // Submit bulk job applications
   async submitApplications(jobs: any[], userProfile: any, authToken: string) {
-    const response = await fetch(`${supabaseUrl}/functions/v1/apply-jobs`, {
+    // Group jobs by application type for optimized processing
+    const jobsByType = this.groupJobsByApplicationType(jobs);
+    const results = [];
+    let totalSuccessful = 0;
+    let totalFailed = 0;
+
+    // Process each application type with specialized handlers
+    for (const [applicationType, typeJobs] of Object.entries(jobsByType)) {
+      try {
+        const result = await this.processApplicationsByType(
+          applicationType as any,
+          typeJobs,
+          userProfile,
+          authToken
+        );
+        results.push(result);
+        totalSuccessful += result.successful;
+        totalFailed += result.failed;
+      } catch (error) {
+        console.error(`Failed to process ${applicationType} applications:`, error);
+        totalFailed += typeJobs.length;
+        results.push({
+          type: applicationType,
+          successful: 0,
+          failed: typeJobs.length,
+          jobs: typeJobs.map(job => ({ ...job, status: 'failed', error: error.message }))
+        });
+      }
+    }
+
+    return {
+      summary: {
+        successful: totalSuccessful,
+        failed: totalFailed,
+        total: jobs.length
+      },
+      details: results
+    };
+  },
+
+  // Group jobs by their application type for batch processing
+  groupJobsByApplicationType(jobs: any[]) {
+    return jobs.reduce((groups, job) => {
+      const type = job.applicationType || 'unknown';
+      if (!groups[type]) {
+        groups[type] = [];
+      }
+      groups[type].push(job);
+      return groups;
+    }, {} as Record<string, any[]>);
+  },
+
+  // Process applications based on their type using specialized handlers
+  async processApplicationsByType(
+    applicationType: 'easy_apply' | 'external_form_simple' | 'external_form_complex' | 'api_direct' | 'unknown',
+    jobs: any[],
+    userProfile: any,
+    authToken: string
+  ) {
+    const endpoint = this.getEndpointForApplicationType(applicationType);
+    
+    const response = await fetch(`${supabaseUrl}/functions/v1/${endpoint}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        applicationType,
         jobs: jobs.map(job => ({
           jobId: job.id.toString(),
           jobTitle: job.title,
@@ -74,7 +136,8 @@ export const applicationService = {
           salaryRange: job.salary,
           location: job.location,
           jobType: job.type,
-          requirements: job.requirements
+          requirements: job.requirements,
+          applicationType: job.applicationType
         })),
         userProfile: {
           fullName: userProfile.name,
@@ -87,10 +150,29 @@ export const applicationService = {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to submit applications');
+      throw new Error(errorData.error || `Failed to submit ${applicationType} applications`);
     }
 
-    return await response.json();
+    const result = await response.json();
+    return {
+      type: applicationType,
+      successful: result.summary?.successful || 0,
+      failed: result.summary?.failed || jobs.length,
+      jobs: result.jobs || jobs.map(job => ({ ...job, status: 'failed' }))
+    };
+  },
+
+  // Map application types to their specialized endpoint handlers
+  getEndpointForApplicationType(applicationType: string): string {
+    const endpointMap = {
+      'easy_apply': 'apply-easy',
+      'external_form_simple': 'apply-simple-form',
+      'external_form_complex': 'apply-complex-form',
+      'api_direct': 'apply-api-direct',
+      'unknown': 'apply-manual-review'
+    };
+    
+    return endpointMap[applicationType as keyof typeof endpointMap] || 'apply-manual-review';
   },
 
   // Update application status
