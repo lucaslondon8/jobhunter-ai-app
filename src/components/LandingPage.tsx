@@ -26,10 +26,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-electric-blue to-purple-600 rounded-lg flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-electric-blue to-purple-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold text-[#2765FF]" style={{ fontFamily: 'Arial Black, sans-serif', fontWeight: 900, letterSpacing: '-0.02em' }}>
                 jobhunter ai
               </span>
             </div>
@@ -74,7 +71,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <button
               onClick={onGetStarted}
-              className="bg-gradient-to-r from-electric-blue to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
+              className="bg-[#2765FF] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105 flex items-center justify-center space-x-2"
             >
               <span>Start Applying Now</span>
               <ArrowRight className="w-5 h-5" />
@@ -114,7 +111,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-r from-electric-blue to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-[#2765FF] rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                 <Upload className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-black mb-4">1. Upload Your CV</h3>
@@ -124,7 +121,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
             </div>
 
             <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                 <Search className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-black mb-4">2. AI Finds Matches</h3>
@@ -134,7 +131,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
             </div>
 
             <div className="text-center group">
-              <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                 <Send className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-black mb-4">3. Bulk Apply</h3>
@@ -190,7 +187,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
               }
             ].map((feature, index) => (
               <div key={index} className="bg-white rounded-2xl p-8 border border-gray-200 hover:shadow-lg transition-all group">
-                <div className="w-12 h-12 bg-gradient-to-r from-electric-blue to-purple-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 bg-[#2765FF] rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-black mb-3">{feature.title}</h3>
@@ -202,7 +199,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-electric-blue to-purple-600">
+      <section className="py-20 bg-[#2765FF]">
         <div className="container mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
             Ready to 10x Your Job Search?
@@ -212,7 +209,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
           </p>
           <button
             onClick={onGetStarted}
-            className="bg-white text-electric-blue px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105 inline-flex items-center space-x-2"
+            className="bg-white text-[#2765FF] px-8 py-4 rounded-xl text-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105 inline-flex items-center space-x-2"
           >
             <span>Get Started Free</span>
             <ArrowRight className="w-5 h-5" />
@@ -224,10 +221,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       <footer className="bg-black text-white py-12">
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-center space-x-2 mb-8">
-            <div className="w-8 h-8 bg-gradient-to-r from-electric-blue to-purple-600 rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-2xl font-bold">jobhunter ai</span>
+            <span className="text-2xl font-bold text-white" style={{ fontFamily: 'Arial Black, sans-serif', fontWeight: 900, letterSpacing: '-0.02em' }}>jobhunter ai</span>
           </div>
           <div className="text-center text-gray-400">
             <p>&copy; 2025 jobhunter ai. All rights reserved. Supercharge your career today.</p>

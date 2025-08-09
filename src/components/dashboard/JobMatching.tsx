@@ -321,7 +321,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
             />
             <label
               htmlFor="cv-upload"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all transform hover:scale-105 cursor-pointer inline-block"
+              className="bg-[#2765FF] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all transform hover:scale-105 cursor-pointer inline-block"
             >
               Choose File
             </label>

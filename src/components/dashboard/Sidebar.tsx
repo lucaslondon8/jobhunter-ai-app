@@ -32,10 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, onSignO
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <Zap className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="text-xl font-bold text-[#2765FF]" style={{ fontFamily: 'Arial Black, sans-serif', fontWeight: 900, letterSpacing: '-0.02em' }}>
             jobhunter ai
           </span>
         </div>
@@ -50,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, onSignO
               onClick={() => onTabChange(item.id)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left transition-all ${
                 activeTab === item.id
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+                  ? 'bg-[#2765FF] text-white shadow-lg'
                   : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
               }`}
             >
@@ -64,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, onSignO
       {/* User Profile */}
       <div className="p-4 border-t border-gray-200">
         <div className="flex items-center space-x-3 p-3 rounded-xl bg-gray-50">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#2765FF] rounded-full flex items-center justify-center">
             <User className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
