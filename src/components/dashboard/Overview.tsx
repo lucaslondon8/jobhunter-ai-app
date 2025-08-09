@@ -132,11 +132,11 @@ const Overview: React.FC<OverviewProps> = ({ user, applications }) => {
               <div key={index} className="flex items-start space-x-4">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                   activity.type === 'application' ? 'bg-blue-100' :
-                  activity.type === 'interview' ? 'bg-green-100' :
+                    activity.type === 'interview' ? 'bg-[#03C03C]/10' :
                   activity.type === 'update' ? 'bg-purple-100' : 'bg-orange-100'
                 }`}>
                   {activity.type === 'application' && <FileText className="w-4 h-4 text-blue-600" />}
-                  {activity.type === 'interview' && <Calendar className="w-4 h-4 text-green-600" />}
+                  {activity.type === 'interview' && <Calendar className="w-4 h-4 text-[#03C03C]" />}
                   {activity.type === 'update' && <AlertCircle className="w-4 h-4 text-purple-600" />}
                   {activity.type === 'bulk' && <Zap className="w-4 h-4 text-orange-600" />}
                 </div>

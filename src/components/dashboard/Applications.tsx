@@ -29,7 +29,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications, isLoading = f
       case 'interview':
         return <Calendar className="w-5 h-5 text-blue-600" />;
       case 'accepted':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <CheckCircle className="w-5 h-5 text-[#03C03C]" />;
       case 'rejected':
         return <XCircle className="w-5 h-5 text-red-600" />;
       default:
@@ -40,15 +40,15 @@ const Applications: React.FC<ApplicationsProps> = ({ applications, isLoading = f
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'processing':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-[#03C03C]/10 text-[#03C03C]';
       case 'submitted':
-        return 'bg-green-100 text-green-800';
+        return 'bg-[#03C03C]/10 text-[#03C03C]';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
       case 'interview':
         return 'bg-blue-100 text-blue-800';
       case 'accepted':
-        return 'bg-green-100 text-green-800';
+        return 'bg-[#03C03C]/10 text-[#03C03C]';
       case 'rejected':
         return 'bg-red-100 text-red-800';
       case 'failed':
@@ -102,7 +102,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications, isLoading = f
 
         <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
-            <CheckCircle className="w-8 h-8 text-green-600" />
+            <CheckCircle className="w-8 h-8 text-[#03C03C]" />
             <span className="text-2xl font-bold text-gray-900">{stats.submitted}</span>
           </div>
           <h3 className="font-semibold text-gray-900">Submitted</h3>
@@ -126,7 +126,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications, isLoading = f
 
         <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all">
           <div className="flex items-center justify-between mb-2">
-            <CheckCircle className="w-8 h-8 text-emerald-600" />
+            <CheckCircle className="w-8 h-8 text-[#03C03C]" />
             <span className="text-2xl font-bold text-gray-900">{stats.accepted}</span>
           </div>
           <h3 className="font-semibold text-gray-900">Offers</h3>

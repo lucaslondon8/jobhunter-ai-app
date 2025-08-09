@@ -88,7 +88,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
               <div className="text-gray-600">Higher Success Rate</div>
             </div>
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200">
-              <div className="text-3xl font-bold text-green-600 mb-2">95%</div>
+              <div className="text-3xl font-bold text-[#03C03C] mb-2">95%</div>
               <div className="text-gray-600">Time Reduction</div>
             </div>
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200">
@@ -121,7 +121,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
             </div>
 
             <div className="text-center group">
-              <div className="w-20 h-20 bg-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-[#03C03C] rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                 <Search className="w-10 h-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-black mb-4">2. AI Finds Matches</h3>

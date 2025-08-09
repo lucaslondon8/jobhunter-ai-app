@@ -185,15 +185,15 @@ const Analytics: React.FC<AnalyticsProps> = ({ applications }) => {
             <h4 className="font-semibold text-gray-900">What's Working Well</h4>
             <ul className="space-y-2">
               <li className="flex items-start space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#03C03C] rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">Your response rate is 15% above average</span>
               </li>
               <li className="flex items-start space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#03C03C] rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">Applications on Tuesdays get 23% more responses</span>
               </li>
               <li className="flex items-start space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-[#03C03C] rounded-full mt-2 flex-shrink-0"></div>
                 <span className="text-gray-700">Remote positions show higher success rates</span>
               </li>
             </ul>
