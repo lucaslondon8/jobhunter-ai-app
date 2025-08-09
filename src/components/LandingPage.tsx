@@ -52,7 +52,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       <section className="container mx-auto px-6 py-20">
         <div className="text-center max-w-4xl mx-auto">
           <div className="inline-flex items-center space-x-2 bg-blue-100 text-electric-blue px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <Trophy className="w-4 h-4" />
+            <Trophy className="w-4 h-4 text-[#2765FF]" />
             <span className="text-[#2765FF]">10x Higher Success Rate</span>
           </div>
           
