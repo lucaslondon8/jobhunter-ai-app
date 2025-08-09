@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, applicationService } from '../../lib/supabase';
-import { CVContentParser } from '../../lib/cvParser';
+import { JobMatchingEngine, CoverLetterGenerator } from '../../lib/jobMatching';
 import { 
   Search, 
   MapPin, 
@@ -49,7 +49,8 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
     experience: ''
   });
   
-  const cvParser = new CVContentParser();
+  const jobMatchingEngine = new JobMatchingEngine();
+  const coverLetterGenerator = new CoverLetterGenerator();
 
   useEffect(() => {
     if (userCV) {
@@ -126,7 +127,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
   // Analyze the uploaded CV content and update skills/suggestions
   const analyzeUploadedCV = async (cvData: any) => {
     try {
-      const analysis = await cvParser.analyzeCV(cvData);
+      const analysis = await jobMatchingEngine.analyzeCV(cvData);
       
       // Update CV data with real analysis results
       const updatedCV = {
@@ -164,256 +165,27 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
   };
   const findJobs = async () => {
     setIsLoading(true);
-    console.log('🔍 Starting job search...');
     
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        console.error('❌ User not authenticated');
         throw new Error("User not authenticated. Cannot fetch jobs.");
       }
-      console.log('✅ User authenticated');
       const token = session.access_token;
 
-      // Generate CV analysis from uploaded CV data
-      let cvAnalysis;
-      if (userCV?.file) {
-        console.log('📄 Analyzing uploaded CV file...');
-        const cvText = await cvParser.extractTextFromFile(userCV.file);
-        cvAnalysis = cvParser.analyzeCV(cvText);
-      } else if (userCV?.skills) {
-        console.log('📋 Using existing CV analysis...');
-        cvAnalysis = {
-          skills: userCV.skills || [],
-          roles: userCV.roles || ['Operations Manager'],
-          industries: userCV.industries || ['Business'],
-          seniorityLevel: 'Senior',
-          personalInfo: { name: 'Professional' }
-        };
-      } else {
-        console.log('⚠️ No CV data available, using defaults...');
-        cvAnalysis = {
-          skills: ['Operations Management', 'Process Improvement', 'Business Analysis'],
-          roles: ['Operations Manager'],
-          industries: ['Business'],
-          seniorityLevel: 'Senior',
-          personalInfo: { name: 'Professional' }
-        };
-      }
-      
-      console.log('📊 CV Analysis result:', cvAnalysis);
+      // Use real CV analysis if available, otherwise fallback to sync method
+      const cvAnalysis = userCV?.file 
+        ? await jobMatchingEngine.analyzeCV(userCV)
+        : jobMatchingEngine.analyzeCVSync(userCV);
         
-      // PRIORITY 1: Try to fetch REAL jobs from multiple APIs
-      let matchingJobs = [];
-      let apiJobsFound = false;
-      
-      // Try Adzuna API first
-      try {
-        console.log('🌐 Attempting to fetch real jobs from API...');
-        const searchTerms = [
-          ...cvAnalysis.roles,
-          ...cvAnalysis.skills.slice(0, 3)
-        ].join(' ').toLowerCase();
-        
-        console.log('🔍 Searching real jobs with terms:', searchTerms);
-        
-        const response = await fetch(`${supabase.supabaseUrl}/functions/v1/job-handler?what=${encodeURIComponent(searchTerms)}&where=london`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('✅ Real jobs fetched:', data.results?.length || 0);
-          
-          if (data.results && data.results.length > 0) {
-            apiJobsFound = true;
-            matchingJobs = data.results.slice(0, 10).map((job: any, index: number) => ({
-              id: job.id || index + 1,
-              title: job.title || 'Operations Manager',
-              company: job.company?.display_name || 'Company Ltd',
-              location: job.location?.display_name || 'London, UK',
-              salary: job.salary_min && job.salary_max 
-                ? `£${Math.round(job.salary_min/1000)}k - £${Math.round(job.salary_max/1000)}k`
-                : '£40k - £60k',
-              description: job.description?.substring(0, 200) + '...' || 'Great opportunity in operations management...',
-              requirements: cvAnalysis.skills.slice(0, 5),
-              posted: '2 days ago',
-              logo: '🏢',
-              match: Math.floor(Math.random() * 20) + 75, // 75-95% match
-              url: job.redirect_url || '#',
-              applicationType: 'external_form_simple',
-              source: 'Adzuna API'
-            }));
-          }
-        } else {
-          console.warn('⚠️ API request failed:', response.status);
-        }
-      } catch (apiError) {
-        console.warn('⚠️ API call failed, using generated jobs:', apiError);
-      }
-      
-      // PRIORITY 2: Try alternative job sources if Adzuna fails
-      if (!apiJobsFound) {
-        console.log('🔄 Trying alternative job sources...');
-        
-        // Try Indeed scraping simulation (in real app, use Indeed API or scraping)
-        try {
-          const indeedJobs = await simulateIndeedJobs(cvAnalysis);
-          if (indeedJobs.length > 0) {
-            matchingJobs = [...matchingJobs, ...indeedJobs];
-            apiJobsFound = true;
-            console.log('✅ Indeed jobs found:', indeedJobs.length);
-          }
-        } catch (error) {
-          console.warn('⚠️ Indeed simulation failed:', error);
-        }
-      }
-      
-      // PRIORITY 3: Generate CV-specific jobs as last resort
-      if (!apiJobsFound) {
-        console.log('🎯 Generating jobs based on CV analysis...');
-        matchingJobs = generateJobsForCV(cvAnalysis, 'Generated based on your CV');
-      }
-      
-      console.log('📋 Final jobs to display:', matchingJobs.length);
-      console.log('📊 Job sources:', matchingJobs.map(j => j.source || 'Generated'));
+      const matchingJobs = await jobMatchingEngine.findMatchingJobs(cvAnalysis, filters, token);
       setJobs(matchingJobs);
     } catch (error) {
-      console.error('❌ Error finding jobs:', error);
+      console.error('Error finding jobs:', error);
       setJobs([]);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Simulate Indeed job search (replace with real Indeed API)
-  const simulateIndeedJobs = async (cvAnalysis: any) => {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // In real implementation, this would call Indeed API or scrape Indeed
-    const indeedTemplates = [
-      {
-        title: 'Operations Manager',
-        company: 'TechFlow Solutions',
-        location: 'London, UK',
-        salary: '£50k - £65k',
-        description: 'Lead operational excellence initiatives in a fast-growing tech company...',
-        source: 'Indeed API'
-      },
-      {
-        title: 'Senior Business Analyst',
-        company: 'DataCorp Ltd',
-        location: 'Manchester, UK', 
-        salary: '£45k - £60k',
-        description: 'Drive business process improvements and data-driven decision making...',
-        source: 'Indeed API'
-      }
-    ];
-    
-    return indeedTemplates.map((job, index) => ({
-      id: `indeed_${Date.now()}_${index}`,
-      title: job.title,
-      company: job.company,
-      location: job.location,
-      salary: job.salary,
-      description: job.description,
-      requirements: cvAnalysis.skills.slice(0, 4),
-      posted: `${Math.floor(Math.random() * 5) + 1} days ago`,
-      logo: '🔍',
-      match: Math.floor(Math.random() * 15) + 80, // 80-95% match
-      url: '#',
-      applicationType: 'external_form_simple',
-      source: job.source
-    }));
-  };
-
-  // Generate relevant jobs based on CV analysis
-  const generateJobsForCV = (cvAnalysis: any, source = 'Generated') => {
-    console.log('🏭 Generating jobs for roles:', cvAnalysis.roles);
-    
-    const jobTemplates = {
-      'Operations Manager': [
-        { title: 'Senior Operations Manager', company: 'TechCorp Ltd', salary: '£55k - £70k' },
-        { title: 'Operations Director', company: 'GlobalBusiness Inc', salary: '£65k - £85k' },
-        { title: 'Head of Operations', company: 'ScaleUp Solutions', salary: '£60k - £80k' }
-      ],
-      'Business Analyst': [
-        { title: 'Senior Business Analyst', company: 'DataFlow Systems', salary: '£45k - £60k' },
-        { title: 'Business Process Analyst', company: 'Efficiency Partners', salary: '£40k - £55k' },
-        { title: 'Operations Analyst', company: 'OptimizeCorp', salary: '£42k - £58k' }
-      ]
-    };
-    
-    const locations = ['London, UK', 'Manchester, UK', 'Birmingham, UK', 'Remote'];
-    const companies = ['TechCorp Ltd', 'GlobalBusiness Inc', 'ScaleUp Solutions', 'DataFlow Systems', 'Efficiency Partners'];
-    
-    let generatedJobs: any[] = [];
-    
-    // Generate jobs for each detected role
-    cvAnalysis.roles.forEach((role: string) => {
-      const templates = jobTemplates[role as keyof typeof jobTemplates] || jobTemplates['Operations Manager'];
-      
-      templates.forEach((template, index) => {
-        generatedJobs.push({
-          id: Date.now() + index + Math.random(),
-          title: template.title,
-          company: template.company,
-          location: locations[index % locations.length],
-          salary: template.salary,
-          description: `Exciting opportunity for a ${template.title} to join our growing team. You'll be responsible for driving operational excellence and leading process improvements.`,
-          requirements: cvAnalysis.skills.slice(0, 5),
-          posted: `${Math.floor(Math.random() * 7) + 1} days ago`,
-          logo: '🏢',
-          match: Math.floor(Math.random() * 25) + 70, // 70-95% match
-          url: '#',
-          applicationType: 'external_form_simple',
-          source: source
-        });
-      });
-    });
-    
-    // Add some general business/operations jobs
-    const additionalJobs = [
-      {
-        id: Date.now() + 1000,
-        title: 'Process Improvement Specialist',
-        company: 'LeanCorp Solutions',
-        location: 'London, UK',
-        salary: '£48k - £62k',
-        description: 'Lead process improvement initiatives using Lean Six Sigma methodologies...',
-        requirements: ['Process Improvement', 'Lean Six Sigma', 'Data Analysis'],
-        posted: '3 days ago',
-        logo: '📊',
-        match: 88,
-        url: '#',
-        applicationType: 'external_form_simple',
-        source: source
-      },
-      {
-        id: Date.now() + 2000,
-        title: 'Supply Chain Manager',
-        company: 'LogisticsPro Ltd',
-        location: 'Manchester, UK',
-        salary: '£52k - £68k',
-        description: 'Manage end-to-end supply chain operations and vendor relationships...',
-        requirements: ['Supply Chain Management', 'Vendor Management', 'Cost Optimization'],
-        posted: '1 day ago',
-        logo: '🚚',
-        match: 82,
-        url: '#',
-        applicationType: 'external_form_complex',
-        source: source
-      }
-    ];
-    
-    generatedJobs = [...generatedJobs, ...additionalJobs];
-    console.log('✅ Generated jobs:', generatedJobs.length);
-    
-    return generatedJobs.slice(0, 8); // Return top 8 jobs
   };
 
   const handleFilterChange = (filterType: string, value: string) => {
@@ -429,36 +201,16 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
     setShowCoverLetter(true);
     
     try {
-      // Generate cover letter based on CV data
-      const cvAnalysis = {
-        personalInfo: { name: 'Professional', email: 'your.email@example.com' },
-        skills: userCV?.skills || [],
-        roles: userCV?.roles || ['Operations Manager'],
-        keyAchievements: ['Led process improvements', 'Reduced costs by 25%', 'Managed cross-functional teams']
-      };
+      // Use real CV analysis for cover letter generation
+      const cvAnalysis = userCV?.file 
+        ? await jobMatchingEngine.analyzeCV(userCV)
+        : jobMatchingEngine.analyzeCVSync(userCV);
         
       const userProfile = {
         name: cvAnalysis.personalInfo?.name || 'Professional',
         email: cvAnalysis.personalInfo?.email || 'your.email@example.com'
       };
-      
-      // Generate a simple cover letter
-      const coverLetter = `Dear Hiring Manager,
-
-I am writing to express my strong interest in the ${job.title} position at ${job.company}. With my extensive background in ${cvAnalysis.roles.join(' and ')}, I am confident I would be a valuable addition to your team.
-
-In my previous roles, I have successfully:
-${cvAnalysis.keyAchievements.map((achievement: string) => `• ${achievement}`).join('\n')}
-
-My key skills include: ${cvAnalysis.skills.slice(0, 5).join(', ')}, which align perfectly with your requirements.
-
-I am excited about the opportunity to contribute to ${job.company}'s continued success and would welcome the chance to discuss how my experience can benefit your organization.
-
-Thank you for your consideration.
-
-Best regards,
-${userProfile.name}`;
-      
+      const coverLetter = coverLetterGenerator.generateCoverLetter(cvAnalysis, job, userProfile);
       await new Promise(resolve => setTimeout(resolve, 2000));
       setGeneratedCoverLetter(coverLetter);
     } catch (error) {
@@ -976,10 +728,17 @@ ${userProfile.name}`;
       {userCV && jobs.length === 0 && (
         <div className="bg-white rounded-2xl p-12 border border-gray-200 text-center">
           <Search className="w-16 h-16 text-gray-400 mx-auto mb-6" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Jobs Found</h3>
-          <p className="text-gray-600 mb-6">Try adjusting your filters or updating your CV</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            {isLoading ? 'Searching for Jobs...' : 'No Jobs Found'}
+          </h3>
+          <p className="text-gray-600 mb-6">
+            {isLoading 
+              ? 'Our AI is analyzing thousands of job opportunities...' 
+              : 'Try adjusting your filters or check the console for debugging info'
+            }
+          </p>
           <button onClick={findJobs} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transition-all transform hover:scale-105">
-            Find Jobs
+            {isLoading ? 'Searching...' : 'Search Again'}
           </button>
         </div>
       )}

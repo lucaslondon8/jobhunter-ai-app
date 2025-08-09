@@ -330,6 +330,49 @@ export class JobMatchingEngine {
     return 'external_form_simple';
   }
 
+  private generateMockJobs(cvAnalysis: any, filters: any): any[] {
+    console.log('🎯 Generating mock jobs for CV analysis:', cvAnalysis);
+    
+    const roles = cvAnalysis.roles || ['Operations Manager'];
+    const skills = cvAnalysis.skills || [];
+    const seniorityLevel = cvAnalysis.seniorityLevel || 'Mid-level';
+    
+    console.log('📋 Detected roles:', roles);
+    console.log('🔧 Detected skills:', skills);
+    console.log('📈 Seniority level:', seniorityLevel);
+
+    // Generate jobs based on detected roles
+    const jobTemplates = this.getJobTemplatesForRoles(roles, seniorityLevel);
+    console.log('📝 Job templates:', jobTemplates.length);
+    
+    // Apply filters
+    let filteredJobs = jobTemplates;
+    
+    if (filters.location && filters.location !== 'all') {
+      filteredJobs = filteredJobs.filter(job => 
+        job.location.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    }
+    
+    if (filters.salary && filters.salary !== 'all') {
+      filteredJobs = filteredJobs.filter(job => 
+        this.matchesSalaryFilter(job.salary, filters.salary)
+      );
+    }
+    
+    if (filters.type && filters.type !== 'all') {
+      filteredJobs = filteredJobs.filter(job => 
+        job.type.toLowerCase() === filters.type.toLowerCase()
+      );
+    }
+    
+    // Ensure we have at least some jobs
+    const finalJobs = filteredJobs.slice(0, 10);
+    console.log('✅ Final jobs to return:', finalJobs.length);
+    
+    return finalJobs;
+  }
+
   // Legacy method for backward compatibility
   analyzeCVSync(userCV: any): CVAnalysis {
     const text = this.extractTextFromCV(userCV);
