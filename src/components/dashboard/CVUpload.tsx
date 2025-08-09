@@ -131,10 +131,20 @@ const CVUpload: React.FC<CVUploadProps> = ({ userCV, onCVUpdate }) => {
             <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center animate-pulse">
               <FileText className="w-8 h-8 text-white" />
             </div>
-            <div className="w-full max-w-md bg-gray-200 rounded-full h-2">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full animate-pulse" style={{ width: '75%' }}></div>
+            <div className="w-full max-w-md">
+              <div className="bg-gray-200 rounded-full h-3 mb-2">
+                <div 
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300" 
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-gray-600 text-center">{uploadProgress}% complete</p>
             </div>
-            <p className="text-gray-600">Analyzing skills, experience, and optimization opportunities...</p>
+            <p className="text-gray-600 text-center">
+              {uploadProgress < 50 ? 'Uploading and parsing your CV...' :
+               uploadProgress < 90 ? 'Analyzing skills and experience...' :
+               'Generating optimization suggestions...'}
+            </p>
           </div>
         </div>
       </div>
@@ -284,19 +294,9 @@ const CVUpload: React.FC<CVUploadProps> = ({ userCV, onCVUpdate }) => {
           <div className="space-y-3">
             {userCV.suggestions.map((suggestion: string, index: number) => (
               <div key={index} className="flex items-start space-x-3">
-              <div className="w-full max-w-md">
-                <div className="bg-gray-200 rounded-full h-3 mb-2">
-                  <div 
-                    className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300" 
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
-                </div>
-                <p className="text-sm text-gray-600 text-center">{uploadProgress}% complete</p>
-              <p className="text-gray-600 text-center">
-                {uploadProgress < 50 ? 'Uploading and parsing your CV...' :
-                 uploadProgress < 90 ? 'Analyzing skills and experience...' :
-                 'Generating optimization suggestions...'}
-              </p>
+                <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />
+                <p className="text-gray-600">{suggestion}</p>
+              </div>
             ))}
           </div>
         </div>
