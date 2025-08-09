@@ -455,7 +455,6 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
                 >
                   {showAllSkills ? 'Show less' : `+${userCV.skills.length - 6} more`}
                 </button>
-                </span>
               )}
             </div>
           </div>
