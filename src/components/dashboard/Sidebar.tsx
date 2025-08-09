@@ -32,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, onSignO
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center space-x-2">
-          <span className="text-xl font-bold text-[#2765FF]" style={{ fontFamily: 'Impact, "Arial Black", sans-serif', fontWeight: 900, letterSpacing: '-0.05em', textTransform: 'lowercase' }}>
+          <span className="text-xl font-bold text-[#2765FF]" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', fontWeight: 700, letterSpacing: '-0.02em' }}>
             jobhunter ai
           </span>
         </div>

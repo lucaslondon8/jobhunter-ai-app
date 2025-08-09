@@ -26,7 +26,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-[#2765FF]" style={{ fontFamily: 'Arial Black, sans-serif', fontWeight: 900, letterSpacing: '-0.02em' }}>
+              <span className="text-2xl font-bold text-[#2765FF]" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', fontWeight: 700, letterSpacing: '-0.02em' }}>
                 jobhunter ai
               </span>
             </div>
@@ -58,7 +58,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
           
           <h1 className="text-5xl md:text-7xl font-bold text-black mb-6 leading-tight">
             Land Your Dream Job
-            <span className="text-2xl font-bold text-[#2765FF]" style={{ fontFamily: 'Impact, "Arial Black", sans-serif', fontWeight: 900, letterSpacing: '-0.05em', textTransform: 'lowercase' }}>
+            <span className="block text-4xl md:text-5xl font-bold text-[#2765FF] mt-2" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', fontWeight: 800, letterSpacing: '-0.02em' }}>
               10x Faster
             </span>
           </h1>
@@ -221,7 +221,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       <footer className="bg-black text-white py-12">
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-center space-x-2 mb-8">
-            <span className="text-2xl font-bold text-white" style={{ fontFamily: 'Impact, "Arial Black", sans-serif', fontWeight: 900, letterSpacing: '-0.05em', textTransform: 'lowercase' }}>jobhunter ai</span>
+            <span className="text-2xl font-bold text-white" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', fontWeight: 700, letterSpacing: '-0.02em' }}>jobhunter ai</span>
           </div>
           <div className="text-center text-gray-400">
             <p>&copy; 2025 jobhunter ai. All rights reserved. Supercharge your career today.</p>
