@@ -38,16 +38,16 @@ export interface JobOpportunity {
 export class JobMatchingEngine {
   
   private roleKeywords = {
-    'Software Engineer': ['software', 'engineer', 'developer', 'programming', 'coding', 'javascript', 'python', 'java', 'react', 'node'],
-    'Frontend Developer': ['frontend', 'front-end', 'react', 'vue', 'angular', 'html', 'css', 'javascript', 'ui', 'ux'],
-    'Backend Developer': ['backend', 'back-end', 'api', 'server', 'database', 'node.js', 'python', 'java', 'sql', 'microservices'],
-    'Full Stack Developer': ['full stack', 'fullstack', 'full-stack', 'frontend', 'backend', 'react', 'node', 'javascript'],
-    'Data Scientist': ['data science', 'machine learning', 'python', 'r', 'statistics', 'analytics', 'ai', 'tensorflow'],
-    'DevOps Engineer': ['devops', 'aws', 'docker', 'kubernetes', 'ci/cd', 'jenkins', 'terraform', 'cloud'],
-    'Product Manager': ['product manager', 'product', 'roadmap', 'strategy', 'stakeholder', 'agile', 'scrum'],
-    'UI/UX Designer': ['ui', 'ux', 'design', 'figma', 'sketch', 'adobe', 'user experience', 'user interface'],
-    'QA Engineer': ['qa', 'quality assurance', 'testing', 'automation', 'selenium', 'cypress', 'test'],
-    'Mobile Developer': ['mobile', 'ios', 'android', 'react native', 'flutter', 'swift', 'kotlin']
+    'Operations Manager': ['operations', 'operational', 'process', 'efficiency', 'workflow', 'logistics', 'supply chain', 'procurement', 'vendor', 'cost reduction', 'lean', 'six sigma', 'project management', 'team leadership', 'kpi', 'metrics', 'continuous improvement'],
+    'Business Analyst': ['business analyst', 'business analysis', 'requirements', 'stakeholder', 'process improvement', 'data analysis', 'reporting', 'documentation', 'workflow', 'business process', 'gap analysis', 'solution design'],
+    'Project Manager': ['project manager', 'project management', 'pmp', 'agile', 'scrum', 'waterfall', 'gantt', 'risk management', 'stakeholder management', 'budget', 'timeline', 'deliverables', 'coordination'],
+    'Supply Chain Manager': ['supply chain', 'logistics', 'procurement', 'vendor management', 'inventory', 'distribution', 'warehousing', 'transportation', 'sourcing', 'supplier', 'demand planning'],
+    'Process Improvement Specialist': ['process improvement', 'lean', 'six sigma', 'kaizen', 'continuous improvement', 'efficiency', 'optimization', 'workflow', 'standard operating procedures', 'sop', 'quality'],
+    'Business Development Manager': ['business development', 'sales', 'partnerships', 'revenue growth', 'market expansion', 'client acquisition', 'relationship management', 'strategic planning', 'negotiation'],
+    'Operations Analyst': ['operations analyst', 'data analysis', 'reporting', 'metrics', 'kpi', 'dashboard', 'excel', 'sql', 'process analysis', 'performance measurement', 'operational efficiency'],
+    'Quality Manager': ['quality management', 'quality assurance', 'iso', 'compliance', 'audit', 'quality control', 'standards', 'certification', 'inspection', 'corrective action'],
+    'Logistics Coordinator': ['logistics', 'coordination', 'shipping', 'transportation', 'freight', 'customs', 'documentation', 'tracking', 'delivery', 'warehouse'],
+    'Administrative Manager': ['administration', 'administrative', 'office management', 'coordination', 'scheduling', 'documentation', 'compliance', 'policies', 'procedures', 'support']
   };
 
   private classifyApplicationType(jobUrl: string): 'easy_apply' | 'external_form_simple' | 'external_form_complex' | 'api_direct' | 'unknown' {
@@ -126,13 +126,18 @@ export class JobMatchingEngine {
   }
 
   private extractSkills(text: string): string[] {
-    const commonSkills = [
-      'javascript', 'python', 'java', 'react', 'node.js', 'angular', 'vue',
-      'html', 'css', 'sql', 'mongodb', 'postgresql', 'aws', 'docker',
-      'kubernetes', 'git', 'agile', 'scrum', 'figma', 'sketch', 'photoshop'
+    const businessOperationsSkills = [
+      'project management', 'process improvement', 'lean', 'six sigma', 'agile', 'scrum',
+      'supply chain', 'logistics', 'procurement', 'vendor management', 'inventory management',
+      'data analysis', 'excel', 'sql', 'reporting', 'dashboard', 'kpi', 'metrics',
+      'quality management', 'iso', 'compliance', 'audit', 'risk management',
+      'stakeholder management', 'team leadership', 'coordination', 'planning',
+      'budgeting', 'cost reduction', 'efficiency', 'optimization', 'workflow',
+      'documentation', 'sop', 'policies', 'procedures', 'training',
+      'customer service', 'relationship management', 'negotiation', 'communication'
     ];
     
-    return commonSkills.filter(skill => text.includes(skill.toLowerCase()));
+    return businessOperationsSkills.filter(skill => text.includes(skill.toLowerCase()));
   }
 
   private calculateExperience(text: string): number {
@@ -152,12 +157,13 @@ export class JobMatchingEngine {
       let score = 0;
       keywords.forEach(keyword => {
         if (text.includes(keyword.toLowerCase())) {
-          score += keyword.length > 5 ? 2 : 1;
+          // Higher scoring for exact matches and longer, more specific keywords
+          score += keyword.length > 10 ? 5 : keyword.length > 5 ? 3 : 1;
         }
       });
       skills.forEach(skill => {
         if (keywords.some(keyword => keyword.includes(skill) || skill.includes(keyword))) {
-          score += 3;
+          score += 5; // Increased weight for skill matches
         }
       });
       if (score > 0) roleScores[role] = score;
@@ -169,25 +175,56 @@ export class JobMatchingEngine {
   }
 
   private identifyIndustries(text: string): string[] {
-    const industries = ['fintech', 'healthcare', 'e-commerce', 'saas', 'gaming', 'education', 'media'];
+    const industries = [
+      'manufacturing', 'automotive', 'aerospace', 'defense', 'energy', 'oil', 'gas',
+      'logistics', 'transportation', 'supply chain', 'retail', 'e-commerce',
+      'healthcare', 'pharmaceutical', 'medical device', 'biotechnology',
+      'financial services', 'banking', 'insurance', 'consulting',
+      'technology', 'software', 'telecommunications', 'media',
+      'construction', 'real estate', 'hospitality', 'food', 'beverage'
+    ];
     return industries.filter(industry => text.includes(industry));
   }
 
   private determineSeniority(experience: number, text: string): 'entry' | 'mid' | 'senior' | 'lead' {
-    if (text.includes('lead') || text.includes('principal') || text.includes('architect')) return 'lead';
-    if (experience >= 7 || text.includes('senior')) return 'senior';
-    if (experience >= 3 || text.includes('mid')) return 'mid';
+    // Check for leadership indicators
+    if (text.includes('director') || text.includes('head of') || text.includes('vp') || 
+        text.includes('vice president') || text.includes('chief') || text.includes('lead')) return 'lead';
+    
+    // Check for senior level indicators
+    if (experience >= 8 || text.includes('senior') || text.includes('principal') || 
+        text.includes('specialist') || text.includes('expert')) return 'senior';
+    
+    // Check for mid-level indicators
+    if (experience >= 4 || text.includes('coordinator') || text.includes('supervisor') || 
+        text.includes('analyst') || text.includes('associate')) return 'mid';
+    
     return 'entry';
   }
 
   private extractKeywords(text: string): string[] {
-    const words = text.split(/\s+/);
-    const technicalWords = words.filter(word => 
+    // Enhanced keyword extraction for business/operations roles
+    const words = text.toLowerCase().split(/\s+/);
+    
+    // Business and operations specific keywords
+    const businessKeywords = [
+      'operations', 'management', 'leadership', 'strategy', 'planning', 'coordination',
+      'efficiency', 'optimization', 'improvement', 'analysis', 'reporting', 'metrics',
+      'budget', 'cost', 'revenue', 'profit', 'roi', 'kpi', 'dashboard', 'excel',
+      'project', 'process', 'workflow', 'procedure', 'policy', 'compliance',
+      'team', 'staff', 'training', 'development', 'performance', 'quality',
+      'customer', 'client', 'vendor', 'supplier', 'stakeholder', 'communication',
+      'negotiation', 'contract', 'procurement', 'sourcing', 'inventory', 'logistics'
+    ];
+    
+    const relevantWords = words.filter(word => 
       word.length > 3 && 
       /^[a-zA-Z]+$/.test(word) &&
-      !['with', 'have', 'been', 'work', 'team', 'project'].includes(word)
+      !['with', 'have', 'been', 'work', 'will', 'also', 'this', 'that', 'they', 'them', 'their', 'from', 'into', 'over', 'under', 'about', 'after', 'before'].includes(word) &&
+      (businessKeywords.includes(word) || word.length > 6)
     );
-    return [...new Set(technicalWords)].slice(0, 20);
+    
+    return [...new Set(relevantWords)].slice(0, 25);
   }
 
   private async fetchJobsViaProxy(cvAnalysis: CVAnalysis, filters: any, authToken: string): Promise<JobOpportunity[]> {
@@ -264,37 +301,82 @@ export class JobMatchingEngine {
   private calculateMatchScore(job: JobOpportunity, cvAnalysis: CVAnalysis): number {
     let score = 0;
     const jobTitleLower = job.title.toLowerCase();
+    const jobDescLower = job.description.toLowerCase();
     
+    // Primary role matching (higher weight)
     if (jobTitleLower.includes(cvAnalysis.primaryRole.toLowerCase())) {
-      score += 40;
+      score += 50;
     } else if (cvAnalysis.secondaryRoles.some(role => jobTitleLower.includes(role.toLowerCase()))) {
-      score += 25;
+      score += 35;
     }
     
+    // Enhanced skill matching with weighted scoring
     const skillMatches = cvAnalysis.skills.filter(skill => 
-      job.description.toLowerCase().includes(skill.toLowerCase())
-    ).length;
-    score += Math.min(skillMatches * 5, 30);
+      jobDescLower.includes(skill.toLowerCase()) || jobTitleLower.includes(skill.toLowerCase())
+    );
     
+    // Weight skills by importance and specificity
+    skillMatches.forEach(skill => {
+      const skillWeight = skill.length > 10 ? 8 : skill.length > 5 ? 5 : 3;
+      score += skillWeight;
+    });
+    score = Math.min(score, score + Math.min(skillMatches.length * 3, 25));
+    
+    // Seniority matching with more nuanced scoring
     const jobSeniority = this.determineSeniorityFromTitle(job.title);
     if (jobSeniority === cvAnalysis.seniority) {
-      score += 20;
+      score += 25;
     } else if (this.isSeniorityCompatible(jobSeniority, cvAnalysis.seniority)) {
-      score += 10;
+      score += 15;
+    } else {
+      // Penalty for significant seniority mismatch
+      score -= 10;
     }
     
+    // Industry matching
     if (cvAnalysis.industries.some(industry => job.industry.toLowerCase().includes(industry))) {
-      score += 10;
+      score += 15;
     }
     
-    return Math.min(Math.floor(score * (Math.random() * 0.2 + 0.9)), 99);
+    // Keyword density analysis
+    const keywordMatches = cvAnalysis.keywords.filter(keyword => 
+      jobDescLower.includes(keyword.toLowerCase())
+    ).length;
+    score += Math.min(keywordMatches * 2, 15);
+    
+    // Location preference bonus (if remote or major city)
+    if (job.location.toLowerCase().includes('remote') || 
+        job.location.toLowerCase().includes('london') ||
+        job.location.toLowerCase().includes('manchester')) {
+      score += 5;
+    }
+    
+    // Ensure score is within reasonable bounds
+    score = Math.max(0, Math.min(score, 100));
+    
+    // Add small random variation to prevent identical scores
+    return Math.min(Math.floor(score * (Math.random() * 0.1 + 0.95)), 99);
   }
   
   private determineSeniorityFromTitle(title: string): 'entry' | 'mid' | 'senior' | 'lead' {
       const lowerTitle = title.toLowerCase();
-      if (lowerTitle.includes('lead') || lowerTitle.includes('principal') || lowerTitle.includes('staff') || lowerTitle.includes('architect')) return 'lead';
-      if (lowerTitle.includes('senior') || lowerTitle.includes('sr.')) return 'senior';
-      if (lowerTitle.includes('junior') || lowerTitle.includes('entry') || lowerTitle.includes('graduate')) return 'entry';
+      
+      // Leadership roles
+      if (lowerTitle.includes('director') || lowerTitle.includes('head of') || 
+          lowerTitle.includes('vp') || lowerTitle.includes('vice president') || 
+          lowerTitle.includes('chief') || lowerTitle.includes('lead') || 
+          lowerTitle.includes('principal') || lowerTitle.includes('manager')) return 'lead';
+      
+      // Senior roles
+      if (lowerTitle.includes('senior') || lowerTitle.includes('sr.') || 
+          lowerTitle.includes('specialist') || lowerTitle.includes('expert') ||
+          lowerTitle.includes('supervisor')) return 'senior';
+      
+      // Entry level roles
+      if (lowerTitle.includes('junior') || lowerTitle.includes('entry') || 
+          lowerTitle.includes('graduate') || lowerTitle.includes('trainee') ||
+          lowerTitle.includes('assistant')) return 'entry';
+      
       return 'mid';
   }
 
@@ -315,7 +397,7 @@ export class CoverLetterGenerator {
       .replace('{COMPANY}', job.company)
       .replace('{POSITION}', job.title)
       .replace('{USER_NAME}', userProfile.name || 'Candidate')
-      .replace('{PRIMARY_SKILL}', cvAnalysis.skills[0] || 'programming')
+      .replace('{PRIMARY_SKILL}', cvAnalysis.skills[0] || 'operations management')
       .replace('{EXPERIENCE}', cvAnalysis.experience.toString())
       .replace('{RELEVANT_SKILLS}', this.getRelevantSkills(cvAnalysis, job))
       .replace('{SPECIFIC_ACHIEVEMENT}', this.generateAchievement(cvAnalysis, job))
@@ -324,19 +406,19 @@ export class CoverLetterGenerator {
 
   private selectTemplate(role: string): string {
     const templates = {
-      'Software Engineer': `Dear Hiring Manager,
+      'Operations Manager': `Dear Hiring Manager,
 
-I am writing to express my strong interest in the {POSITION} position at {COMPANY}. With {EXPERIENCE} years of experience in software development and expertise in {PRIMARY_SKILL}, I am excited about the opportunity to contribute to your innovative team.
+I am writing to express my strong interest in the {POSITION} position at {COMPANY}. With {EXPERIENCE} years of experience in operations and business management, and expertise in {PRIMARY_SKILL}, I am excited about the opportunity to contribute to your organization's operational excellence.
 
-In my previous roles, I have {SPECIFIC_ACHIEVEMENT}. My technical skills in {RELEVANT_SKILLS} align perfectly with your requirements, and I am particularly drawn to {COMPANY_VALUE}.
+In my previous roles, I have {SPECIFIC_ACHIEVEMENT}. My operational expertise in {RELEVANT_SKILLS} aligns perfectly with your requirements, and I am particularly drawn to {COMPANY_VALUE}.
 
-I would welcome the opportunity to discuss how my background in software engineering and passion for creating robust, scalable solutions can benefit your team.
+I would welcome the opportunity to discuss how my background in operations management and passion for driving efficiency and process improvement can benefit your organization.
 
 Best regards,
 {USER_NAME}`,
     };
 
-    return templates['Software Engineer'];
+    return templates['Operations Manager'];
   }
 
   private getRelevantSkills(cvAnalysis: CVAnalysis, job: JobOpportunity): string {
@@ -348,22 +430,25 @@ Best regards,
 
   private generateAchievement(cvAnalysis: CVAnalysis, job: JobOpportunity): string {
     const achievements = [
-      'successfully delivered multiple high-impact projects',
-      'improved system performance by implementing efficient solutions',
-      'collaborated with cross-functional teams to deliver quality software',
-      'mentored junior developers and contributed to team growth',
-      'implemented best practices that enhanced code quality and maintainability'
+      'successfully led cross-functional teams to deliver complex operational initiatives',
+      'improved operational efficiency by 25% through process optimization and lean methodologies',
+      'managed multi-million pound budgets while consistently reducing costs by 15-20%',
+      'implemented quality management systems that enhanced compliance and reduced errors',
+      'developed and executed strategic plans that drove significant business growth',
+      'streamlined supply chain operations resulting in improved delivery times and cost savings',
+      'led digital transformation initiatives that modernized business processes'
     ];
     return achievements[Math.floor(Math.random() * achievements.length)];
   }
 
   private getCompanyValue(company: string): string {
     const values = [
-      'commitment to innovation and technical excellence',
-      'focus on creating impactful solutions',
-      'dedication to fostering a collaborative work environment',
-      'reputation for building cutting-edge technology',
-      'mission to solve complex technical challenges'
+      'commitment to operational excellence and continuous improvement',
+      'focus on delivering exceptional customer value and satisfaction',
+      'dedication to fostering a collaborative and results-driven culture',
+      'reputation for innovation and industry leadership',
+      'mission to drive sustainable business growth and operational efficiency',
+      'commitment to quality, compliance, and best-in-class processes'
     ];
     return values[Math.floor(Math.random() * values.length)];
   }
