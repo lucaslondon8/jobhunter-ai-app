@@ -21,7 +21,6 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, user, onSignOut }) => {
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: Home },
-    { id: 'cv', label: 'CV Upload', icon: Upload },
     { id: 'jobs', label: 'Job Matching', icon: Search },
     { id: 'applications', label: 'Applications', icon: FileText },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
