@@ -156,13 +156,178 @@ export class JobMatchingEngine {
       const cvText = await this.cvParser.extractTextFromFile(userCV.file);
       
       // Analyze the extracted content
-      const analysis = this.cvParser.analyzeCV(cvText);
+      console.log('🔍 Starting job search with:', { cvAnalysis, filters });
       
-      return analysis;
+      // Try real API first, fallback to generated jobs
+      try {
+        const realJobs = await this.searchRealJobs(cvAnalysis, filters, authToken);
+        if (realJobs && realJobs.length > 0) {
+          console.log('✅ Found real jobs:', realJobs.length);
+          return realJobs;
+        }
+      } catch (apiError) {
+        console.warn('⚠️ Real API failed, using generated jobs:', apiError);
+      }
+      
+      // Generate relevant jobs based on CV analysis
+      const generatedJobs = this.generateMockJobs(cvAnalysis, filters);
+      console.log('🎯 Generated jobs:', generatedJobs.length);
+      return generatedJobs;
     } catch (error) {
       console.error('Error analyzing CV:', error);
       return this.getDefaultAnalysis();
     }
+  }
+
+  private async searchRealJobs(cvAnalysis: any, filters: any, authToken: string): Promise<any[]> {
+    // Extract search terms from CV analysis
+    const searchTerms = this.extractSearchTerms(cvAnalysis);
+    const location = filters.location || 'london';
+    
+    console.log('🔍 Searching real jobs with terms:', searchTerms);
+    
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/job-handler?what=${encodeURIComponent(searchTerms)}&where=${encodeURIComponent(location)}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.results || data.results.length === 0) {
+      console.log('📭 No real jobs found from API');
+      return [];
+    }
+
+    // Transform API results to our format
+    return data.results.map((job: any, index: number) => ({
+      id: job.id || Date.now() + index,
+      title: job.title || 'Job Title',
+      company: job.company?.display_name || 'Company',
+      location: job.location?.display_name || location,
+      salary: job.salary_min && job.salary_max 
+        ? `£${Math.round(job.salary_min/1000)}k - £${Math.round(job.salary_max/1000)}k`
+        : 'Competitive',
+      posted: this.formatDate(job.created),
+      description: job.description?.substring(0, 200) + '...' || 'Job description not available',
+      requirements: this.extractRequirements(job.description || ''),
+      match: this.calculateJobMatch(cvAnalysis, job),
+      logo: this.getCompanyLogo(job.company?.display_name),
+      url: job.redirect_url || '#',
+      applicationType: this.determineApplicationType(job)
+    })).filter(job => job.match >= 60); // Only show jobs with 60%+ match
+  }
+
+  private extractSearchTerms(cvAnalysis: any): string {
+    // Use the primary role from CV analysis
+    const primaryRole = cvAnalysis.roles?.[0] || 'operations manager';
+    
+    // Add relevant keywords based on detected skills
+    const skillKeywords = (cvAnalysis.skills || [])
+      .slice(0, 3) // Top 3 skills
+      .join(' ');
+    
+    return `${primaryRole} ${skillKeywords}`.toLowerCase();
+  }
+
+  private extractRequirements(description: string): string[] {
+    const requirements: string[] = [];
+    const text = description.toLowerCase();
+    
+    // Common requirement patterns
+    const skillPatterns = [
+      'operations management', 'process improvement', 'supply chain',
+      'project management', 'business analysis', 'cost optimization',
+      'lean six sigma', 'vendor management', 'stakeholder management',
+      'excel', 'powerbi', 'data analysis', 'team leadership'
+    ];
+    
+    skillPatterns.forEach(skill => {
+      if (text.includes(skill)) {
+        requirements.push(skill.split(' ').map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' '));
+      }
+    });
+    
+    return requirements.slice(0, 5); // Max 5 requirements
+  }
+
+  private calculateJobMatch(cvAnalysis: any, job: any): number {
+    let matchScore = 60; // Base score
+    
+    const userSkills = (cvAnalysis.skills || []).map((s: string) => s.toLowerCase());
+    const userRoles = (cvAnalysis.roles || []).map((r: string) => r.toLowerCase());
+    const jobTitle = (job.title || '').toLowerCase();
+    const jobDescription = (job.description || '').toLowerCase();
+    
+    // Role matching (high weight)
+    userRoles.forEach(role => {
+      if (jobTitle.includes(role.split(' ')[0])) { // Match first word of role
+        matchScore += 15;
+      }
+    });
+    
+    // Skill matching
+    userSkills.forEach(skill => {
+      if (jobDescription.includes(skill.toLowerCase())) {
+        matchScore += 3;
+      }
+    });
+    
+    return Math.min(95, matchScore); // Cap at 95%
+  }
+
+  private formatDate(dateString: string): string {
+    if (!dateString) return 'Recently';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+    return 'Recently';
+  }
+
+  private getCompanyLogo(companyName: string): string {
+    // Return emoji based on company name or type
+    const logos: { [key: string]: string } = {
+      'tech': '💻',
+      'consulting': '📊',
+      'finance': '💰',
+      'healthcare': '🏥',
+      'retail': '🛍️',
+      'manufacturing': '🏭',
+      'default': '🏢'
+    };
+    
+    const name = (companyName || '').toLowerCase();
+    for (const [key, logo] of Object.entries(logos)) {
+      if (name.includes(key)) return logo;
+    }
+    
+    return logos.default;
+  }
+
+  private determineApplicationType(job: any): string {
+    // Determine how complex the application process might be
+    const url = (job.redirect_url || '').toLowerCase();
+    
+    if (url.includes('linkedin')) return 'easy_apply';
+    if (url.includes('indeed')) return 'easy_apply';
+    if (url.includes('workday')) return 'external_form_complex';
+    if (url.includes('greenhouse')) return 'external_form_complex';
+    
+    return 'external_form_simple';
   }
 
   // Legacy method for backward compatibility
