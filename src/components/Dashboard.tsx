@@ -22,9 +22,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
       case 'overview':
         return <Overview user={user} applications={applications} />;
       case 'cv':
-        return <CVUpload userCV={userCV} onCVUpdate={setUserCV} />;
+        return null; // CV upload is now integrated into job matching
       case 'jobs':
-        return <JobMatching userCV={userCV} onApply={(jobs) => setApplications(prev => [...prev, ...jobs])} />;
+        return <JobMatching userCV={userCV} onApply={handleNewApplications} onCVUpdate={setUserCV} />;
       case 'applications':
         return <Applications applications={applications} />;
       case 'analytics':
