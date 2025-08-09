@@ -6,6 +6,7 @@ export default {
       colors: {
         'electric-blue': '#00BFFF',
         'pearl': '#F0F8FF',
+        'success': '#03C03C',
       },
     },
   },

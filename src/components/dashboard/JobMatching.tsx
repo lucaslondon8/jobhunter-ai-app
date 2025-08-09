@@ -477,7 +477,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
             className={`text-white px-6 py-3 rounded-xl font-semibold transition-all transform flex items-center space-x-2 relative ${
               isApplying 
                 ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-gradient-to-r from-green-600 to-blue-600 hover:shadow-lg hover:scale-105'
+                : 'bg-gradient-to-r from-[#03C03C] to-blue-600 hover:shadow-lg hover:scale-105'
             }`}
           >
             {isApplying ? (
