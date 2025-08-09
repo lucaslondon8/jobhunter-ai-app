@@ -440,7 +440,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
           <div>
             <h4 className="font-semibold text-gray-900 mb-3">Skills Detected</h4>
             <div className="flex flex-wrap gap-2">
-              {(showAllSkills ? userCV.skills : userCV.skills.slice(0, 6)).map((skill: string, index: number) => (
+              {(showAllSkills ? userCV.skills || [] : (userCV.skills || []).slice(0, 6)).map((skill: string, index: number) => (
                 <span
                   key={index}
                   className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
@@ -448,12 +448,12 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
                   {skill}
                 </span>
               ))}
-              {userCV.skills.length > 6 && (
+              {(userCV.skills || []).length > 6 && (
                 <button
                   onClick={() => setShowAllSkills(!showAllSkills)}
                   className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm hover:bg-gray-200 transition-colors"
                 >
-                  {showAllSkills ? 'Show less' : `+${userCV.skills.length - 6} more`}
+                  {showAllSkills ? 'Show less' : `+${(userCV.skills || []).length - 6} more`}
                 </button>
               )}
             </div>
@@ -462,7 +462,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ userCV, onApply, onCVUpdate }
           <div>
             <h4 className="font-semibold text-gray-900 mb-3">Top Suggestions</h4>
             <div className="space-y-2">
-              {userCV.suggestions.slice(0, 3).map((suggestion: string, index: number) => (
+              {(userCV.suggestions || []).slice(0, 3).map((suggestion: string, index: number) => (
                 <div key={index} className="flex items-start space-x-2">
                   <AlertCircle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-gray-600">{suggestion}</p>
