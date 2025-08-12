@@ -1,7 +1,6 @@
 // supabase/functions/apply-simple-form/index.ts
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
-// NOTE: Ensure you add puppeteer to your function's import_map.json
 import puppeteer from "https://deno.land/x/puppeteer@16.2.0/mod.ts";
 
 const corsHeaders = {
@@ -37,12 +36,6 @@ async function processSimpleFormJobs(jobs: any[], userProfile: any, userId: stri
   });
   const page = await browser.newPage();
 
-  // --- CRITICAL TODO: SECURE AUTHENTICATION ---
-  // This function assumes the application form is public.
-  // If it requires a login to the job board, you must implement
-  // the same secure cookie/session handling as in the 'apply-easy' function.
-  // --- END CRITICAL TODO ---
-
   for (const job of jobs) {
     const { data: application, error: dbError } = await supabase
       .from('applications')
@@ -68,29 +61,15 @@ async function processSimpleFormJobs(jobs: any[], userProfile: any, userId: stri
       console.log(`[AUTOMATION] Starting SIMPLE FORM application for: ${job.jobTitle}`);
       await page.goto(job.jobUrl, { waitUntil: 'networkidle2', timeout: 60000 });
 
-      // --- REAL AUTOMATION LOGIC for SIMPLE FORMS ---
-      // Fill common form fields. This requires robust selectors.
       await page.type('input[name*="name" i]', userProfile.fullName || '');
       await page.type('input[name*="email" i]', userProfile.email || '');
       await page.type('input[name*="phone" i]', userProfile.phone || '');
-      
-      // TODO: Handle CV/Resume upload
-      // const fileInputSelector = 'input[type="file"]';
-      // await page.waitForSelector(fileInputSelector);
-      // const fileInput = await page.$(fileInputSelector);
-      // const cvPath = await downloadUserCV(userId); // You need a function to get the user's CV file
-      // await fileInput.uploadFile(cvPath);
 
-      // Find and click the submit button
       const submitButtonSelector = 'button[type="submit"], input[type="submit"], button[id*="submit" i]';
       await page.waitForSelector(submitButtonSelector, { timeout: 10000 });
       await page.click(submitButtonSelector);
       
-      // Wait for a confirmation message or navigation
-      // await page.waitForNavigation({ waitUntil: 'networkidle2' });
-      
       console.log(`[AUTOMATION] Successfully submitted SIMPLE FORM for ${job.jobTitle}`);
-      // --- END REAL AUTOMATION LOGIC ---
 
       await supabase
         .from('applications')
@@ -121,23 +100,49 @@ async function processSimpleFormJobs(jobs: any[], userProfile: any, userId: stri
 }
 
 Deno.serve(async (req: Request) => {
-  // ... (Identical Deno.serve logic as the other functions)
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
+
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
     const authHeader = req.headers.get('Authorization');
     const { user, error: authError } = await getUserFromToken(authHeader || '');
+    
     if (authError || !user) {
-      return new Response(JSON.stringify({ error: authError || 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: authError || 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
+
     const { jobs, userProfile } = await req.json();
+
     if (!jobs || !Array.isArray(jobs) || jobs.length === 0) {
-      return new Response(JSON.stringify({ error: 'No jobs provided' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: 'No jobs provided' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
+
     const result = await processSimpleFormJobs(jobs, userProfile, user.id);
-    return new Response(JSON.stringify(result), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    console.error('Simple form function error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 });

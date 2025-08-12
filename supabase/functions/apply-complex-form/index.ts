@@ -3,14 +3,28 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import puppeteer from "https://deno.land/x/puppeteer@16.2.0/mod.ts";
 
-const corsHeaders = { /* ... */ };
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-async function getUserFromToken(authHeader: string): Promise<{ user: any; error?: string }> { /* ... */ }
+async function getUserFromToken(authHeader: string): Promise<{ user: any; error?: string }> {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { user: null, error: 'Missing or invalid authorization header' };
+  }
+  const token = authHeader.replace('Bearer ', '');
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+  if (error || !user) {
+    return { user: null, error: 'Invalid or expired token' };
+  }
+  return { user };
+}
 
-// --- "Smarter" Field Mapping ---
 const fieldMappings = {
   fullName: ['name', 'full_name', 'fullname'],
   firstName: ['fname', 'first_name', 'firstname'],
@@ -30,26 +44,27 @@ async function processComplexFormJobs(jobs: any[], userProfile: any, userId: str
   const page = await browser.newPage();
 
   for (const job of jobs) {
-    // ... (Database insert logic remains the same)
+    const { data: application, error: dbError } = await supabase
+      .from('applications')
+      .insert({ user_id: userId, job_id: job.jobId, job_title: job.jobTitle, company_name: job.companyName, job_url: job.jobUrl, status: 'processing' })
+      .select().single();
+    
+    if (dbError) {
+        failed++;
+        results.push({ jobId: job.jobId, status: 'failed', error: 'Database error' });
+        continue;
+    }
 
     try {
       console.log(`[AUTOMATION] Starting COMPLEX FORM application for: ${job.jobTitle}`);
       await page.goto(job.jobUrl, { waitUntil: 'networkidle2', timeout: 60000 });
 
-      // --- INTELLIGENT FORM FILLING ---
       const inputs = await page.$$('input, textarea, select');
       
       for (const input of inputs) {
         const properties = await page.evaluate(el => {
           const label = document.querySelector(`label[for="${el.id}"]`);
-          return {
-            id: el.id,
-            name: el.name,
-            type: el.type,
-            placeholder: el.placeholder,
-            ariaLabel: el.getAttribute('aria-label'),
-            labelText: label ? label.textContent : null,
-          };
+          return { id: el.id, name: el.name, type: el.type, placeholder: el.placeholder, ariaLabel: el.getAttribute('aria-label'), labelText: label ? label.textContent : null };
         }, input);
 
         const combinedText = `${properties.id} ${properties.name} ${properties.placeholder} ${properties.ariaLabel} ${properties.labelText}`.toLowerCase();
@@ -63,30 +78,24 @@ async function processComplexFormJobs(jobs: any[], userProfile: any, userId: str
         }
         
         if (matchedField && userProfile[matchedField]) {
-          console.log(`[AUTOMATION] Found match for "${matchedField}", filling field.`);
           await input.type(userProfile[matchedField]);
         }
       }
       
-      // TODO: This is where you would introduce an AI call for fields that don't match.
-      // E.g., take a screenshot, send it to a vision model to identify a field's purpose.
-      
-      // Find and click the submit button
       const submitButtonSelector = 'button[type="submit"], input[type="submit"], button[id*="submit" i]';
       await page.waitForSelector(submitButtonSelector, { timeout: 10000 });
-      // await page.click(submitButtonSelector); // Commented out for safety during testing
+      // await page.click(submitButtonSelector);
 
       console.log(`[AUTOMATION] Successfully submitted COMPLEX FORM for ${job.jobTitle}`);
-      // --- END INTELLIGENT FORM FILLING ---
 
-      // ... (Database update on success remains the same)
+      await supabase.from('applications').update({ status: 'submitted' }).eq('id', application.id);
       successful++;
-      results.push({ /* ... */ });
+      results.push({ jobId: job.jobId, status: 'submitted', applicationId: application.id });
       
     } catch (error) {
-      // ... (Error handling and database update on failure remains the same)
+      await supabase.from('applications').update({ status: 'failed', notes: error.message }).eq('id', application.id);
       failed++;
-      results.push({ /* ... */ });
+      results.push({ jobId: job.jobId, status: 'failed', error: error.message, applicationId: application.id });
     }
   }
 
@@ -95,5 +104,49 @@ async function processComplexFormJobs(jobs: any[], userProfile: any, userId: str
 }
 
 Deno.serve(async (req: Request) => {
-  // ... (Identical Deno.serve logic)
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 200, headers: corsHeaders });
+  }
+
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  try {
+    const authHeader = req.headers.get('Authorization');
+    const { user, error: authError } = await getUserFromToken(authHeader || '');
+    
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: authError || 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { jobs, userProfile } = await req.json();
+
+    if (!jobs || !Array.isArray(jobs) || jobs.length === 0) {
+      return new Response(JSON.stringify({ error: 'No jobs provided' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const result = await processComplexFormJobs(jobs, userProfile, user.id);
+
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
+  } catch (error) {
+    console.error('Complex form function error:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 });
