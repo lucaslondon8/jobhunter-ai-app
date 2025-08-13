@@ -19,7 +19,6 @@ const JobMatching: React.FC<JobMatchingProps> = ({ user, userCV, onApply, onCVUp
   const [selectedJobs, setSelectedJobs] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
-  const [applicationProgress, setApplicationProgress] = useState<{ [key: string]: string }>({});
   
   const canBulkApply = user.plan === 'pro' || user.plan === 'plus+';
   const appLimit = user.monthly_app_limit;
@@ -27,22 +26,20 @@ const JobMatching: React.FC<JobMatchingProps> = ({ user, userCV, onApply, onCVUp
   const atLimit = appsRemaining <= 0 && user.plan !== 'plus+';
 
   const findJobs = async () => {
-      if (!userCV) return;
-      setIsLoading(true);
+    if (!userCV) return;
+    setIsLoading(true);
+    try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-          setIsLoading(false);
-          return;
-      }
-      try {
-          const engine = new JobMatchingEngine();
-          const matchingJobs = await engine.findMatchingJobs(userCV, {}, session.access_token);
-          setJobs(matchingJobs);
-      } catch (error) {
-          console.error("Error finding jobs:", error);
-      } finally {
-          setIsLoading(false);
-      }
+      if (!session) throw new Error("Authentication error");
+      const engine = new JobMatchingEngine();
+      const matchingJobs = await engine.findMatchingJobs(userCV, {}, session.access_token);
+      setJobs(matchingJobs || []); // Ensure jobs is always an array
+    } catch (error) {
+      console.error("Error finding jobs:", error);
+      setJobs([]); // On error, reset to an empty array
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -53,29 +50,47 @@ const JobMatching: React.FC<JobMatchingProps> = ({ user, userCV, onApply, onCVUp
     setSelectedJobs(prev => prev.includes(jobId) ? prev.filter(id => id !== jobId) : [...prev, jobId]);
   };
   
-  const handleBulkApply = async () => { /* ... your apply logic ... */ };
+  const handleBulkApply = async () => {
+    // Placeholder for your application logic
+    setIsApplying(true);
+    console.log("Applying to jobs:", selectedJobs);
+    await new Promise(res => setTimeout(res, 2000));
+    setIsApplying(false);
+  };
 
   const handleBulkApplyClick = () => {
     if (!canBulkApply) return alert('Upgrade to Pro to use the Bulk Apply Engine!');
-    if (atLimit) return alert(`You've reached your monthly limit. Upgrade to Plus+ for unlimited applications.`);
+    if (atLimit) return alert(`You've reached your monthly limit. Upgrade for unlimited applications.`);
     handleBulkApply();
   };
 
   return (
     <div className="space-y-8">
-      {/* Your full component JSX, including the CV upload section */}
-      {userCV && jobs.length > 0 && (
-        <div className="space-y-6">
+      <h1 className="text-3xl font-bold text-center">Job Matching</h1>
+      {/* Placeholder for CV Upload Section */}
+      <div className="text-center p-8 bg-gray-100 rounded-lg">
+        <p>CV Upload & Analysis Section</p>
+      </div>
+
+      {isLoading && (
+        <div className="text-center">
+          <p>Loading jobs...</p>
+        </div>
+      )}
+
+      {!isLoading && jobs.length > 0 && (
+        <div className="space-y-4">
           {jobs.map((job) => (
-            job && (
-              <div key={job.id} onClick={() => toggleJobSelection(job.id)} className={`bg-white rounded-2xl p-6 border-2 transition-all ${selectedJobs.includes(job.id) ? 'border-blue-500' : 'border-gray-200'}`}>
-                <div className="flex items-center space-x-4">
-                  <div className="flex-1">
+            // THE FIX: Ensure job and job.match exist before rendering.
+            job && typeof job.match !== 'undefined' && (
+              <div key={job.id} onClick={() => toggleJobSelection(job.id)} className={`bg-white rounded-2xl p-6 border-2 transition-all ${selectedJobs.includes(job.id) ? 'border-blue-500 shadow-lg' : 'border-gray-200'}`}>
+                <div className="flex justify-between items-center">
+                  <div>
                     <h3 className="font-bold text-lg">{job.title}</h3>
                     <p className="text-gray-600">{job.company}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-blue-600">{job.match}% Match</p>
+                    <p className="font-bold text-lg text-blue-600">{job.match}% Match</p>
                   </div>
                 </div>
               </div>

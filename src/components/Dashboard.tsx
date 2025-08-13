@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+// src/components/Dashboard.tsx (Corrected Import Path)
+
+import React, { useState, useEffect } from 'react';
+import { supabase, applicationService } from '../lib/supabase';
+// CORRECTED: All imports now point to the './dashboard/' subdirectory
 import Sidebar from './dashboard/Sidebar';
 import Overview from './dashboard/Overview';
-import CVUpload from './dashboard/CVUpload';
 import JobMatching from './dashboard/JobMatching';
 import Applications from './dashboard/Applications';
 import Analytics from './dashboard/Analytics';
@@ -16,15 +19,37 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [userCV, setUserCV] = useState<any>(null);
   const [applications, setApplications] = useState<any[]>([]);
+  const [isLoadingApplications, setIsLoadingApplications] = useState(false);
+
+  useEffect(() => {
+    loadApplications();
+  }, []);
+
+  const loadApplications = async () => {
+    setIsLoadingApplications(true);
+    try {
+      const dbApplications = await applicationService.getApplications();
+      setApplications(dbApplications);
+    } catch (error) {
+      console.error('Failed to load applications:', error);
+    } finally {
+      setIsLoadingApplications(false);
+    }
+  };
+
+  const handleNewApplications = (newApplications: any[]) => {
+    setApplications(prev => [...prev, ...newApplications]);
+    setTimeout(() => loadApplications(), 2000);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':
         return <Overview user={user} applications={applications} />;
       case 'jobs':
-        return <JobMatching userCV={userCV} onApply={handleNewApplications} onCVUpdate={setUserCV} />;
+        return <JobMatching user={user} userCV={userCV} onApply={handleNewApplications} onCVUpdate={setUserCV} />;
       case 'applications':
-        return <Applications applications={applications} />;
+        return <Applications applications={applications} isLoading={isLoadingApplications} />;
       case 'analytics':
         return <Analytics applications={applications} />;
       case 'settings':
@@ -32,10 +57,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
       default:
         return <Overview user={user} applications={applications} />;
     }
-  };
-
-  const handleNewApplications = (newApplications: any[]) => {
-    setApplications(prev => [...prev, ...newApplications]);
   };
 
   return (
