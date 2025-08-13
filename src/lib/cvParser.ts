@@ -1,15 +1,15 @@
-// src/lib/cvParser.ts
+// src/lib/cvParser.ts (Corrected & Final)
 
 // Type definitions for the CV analysis object returned by the backend
 export interface CVAnalysis {
   skills: string[];
   roles: string[];
   summary: string;
-  // Add other fields as your backend analysis becomes more sophisticated
-  // personalInfo?: PersonalInfo;
-  // experience?: ExperienceEntry[];
-  // seniorityLevel?: string;
-  // keyAchievements?: string[];
+  // You can expand this with more detailed analysis fields later
+  personalInfo?: PersonalInfo;
+  experience?: ExperienceEntry[];
+  seniorityLevel?: string;
+  keyAchievements?: string[];
 }
 
 export interface PersonalInfo {
@@ -25,7 +25,3 @@ export interface ExperienceEntry {
   duration: string;
   description: string;
 }
-
-// The CVContentParser class is no longer needed on the client-side
-// for parsing, but you might keep it for other utility functions
-// or simply remove it.
