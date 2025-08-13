@@ -1,8 +1,7 @@
-// src/components/Dashboard.tsx (Corrected Import Path)
+// src/components/Dashboard.tsx
 
 import React, { useState, useEffect } from 'react';
-import { supabase, applicationService } from '../lib/supabase';
-// CORRECTED: All imports now point to the './dashboard/' subdirectory
+import { applicationService } from '../lib/supabase';
 import Sidebar from './dashboard/Sidebar';
 import Overview from './dashboard/Overview';
 import JobMatching from './dashboard/JobMatching';
@@ -19,7 +18,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [userCV, setUserCV] = useState<any>(null);
   const [applications, setApplications] = useState<any[]>([]);
-  const [isLoadingApplications, setIsLoadingApplications] = useState(false);
+  const [isLoadingApplications, setIsLoadingApplications] = useState(true);
 
   useEffect(() => {
     loadApplications();
@@ -29,17 +28,20 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
     setIsLoadingApplications(true);
     try {
       const dbApplications = await applicationService.getApplications();
-      setApplications(dbApplications);
+      setApplications(dbApplications || []);
     } catch (error) {
       console.error('Failed to load applications:', error);
+      setApplications([]);
     } finally {
       setIsLoadingApplications(false);
     }
   };
 
-  const handleNewApplications = (newApplications: any[]) => {
-    setApplications(prev => [...prev, ...newApplications]);
-    setTimeout(() => loadApplications(), 2000);
+  const handleNewApplications = (newlySubmittedJobs: any[]) => {
+    setApplications(prev => [...newlySubmittedJobs, ...prev]);
+    setTimeout(() => {
+      loadApplications();
+    }, 5000);
   };
 
   const renderContent = () => {
@@ -67,8 +69,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
         user={user}
         onSignOut={onSignOut}
       />
-      <main className="flex-1 ml-64">
-        <div className="p-8">
+      <main className="flex-1 lg:ml-64">
+        <div className="p-4 sm:p-6 lg:p-8">
           {renderContent()}
         </div>
       </main>
