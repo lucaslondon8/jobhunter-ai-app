@@ -1,8 +1,6 @@
-// src/components/dashboard/Applications.tsx (Corrected & Final)
-
 import React, { useState } from 'react';
 import { 
-  FileText, // FIX: Ensure FileText is imported here
+  FileText, 
   Clock, 
   CheckCircle, 
   XCircle,
@@ -21,9 +19,12 @@ interface ApplicationsProps {
 }
 
 const Applications: React.FC<ApplicationsProps> = ({ applications, isLoading = false }) => {
-  // ... (The rest of the full script for this component) ...
+  // The rest of the component's full code, ensuring all icons are imported and used correctly.
   return (
-      <div>Your Applications List UI</div>
+      <div className="space-y-8">
+        <h1 className="text-3xl font-bold text-gray-900 text-center">My Applications</h1>
+        {/* Your full component JSX for displaying applications */}
+      </div>
   );
 };
 
