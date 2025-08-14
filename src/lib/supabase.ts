@@ -232,7 +232,12 @@ export const profileService = {
       .eq('id', user.id)
       .single();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // Profile doesn't exist yet, return null
+        console.log('Profile not found for user:', user.id);
+        return null;
+      }
       console.error('Error fetching profile:', error);
       throw error;
     }
@@ -250,6 +255,7 @@ export const profileService = {
       .from('user_profiles')
       .upsert({
         id: user.id,
+        email: user.email,
         ...profile,
         updated_at: new Date().toISOString()
       })
