@@ -433,7 +433,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
                   )}
                   {plan.originalWeeklyPrice && (
                     <div className="text-gray-400 line-through text-sm mb-2">{plan.originalWeeklyPrice}</div>
-                  </div>
+                  )}
                 </div>
                 
                 <ul className="space-y-4 mb-8">
