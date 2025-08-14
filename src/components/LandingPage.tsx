@@ -40,80 +40,39 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
 
   useEffect(() => {
     setIsVisible(true);
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
   }, []);
-
-  const testimonials = [
-    {
-      name: "Sarah Chen",
-      role: "Senior Software Engineer",
-      company: "Google",
-      image: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      quote: "I landed my dream job at Google in just 2 weeks. The AI-powered applications were incredibly targeted and professional.",
-      results: "127 applications → 23 interviews → 5 offers"
-    },
-    {
-      name: "Marcus Rodriguez",
-      role: "Product Manager",
-      company: "Meta",
-      image: "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      quote: "The bulk application feature saved me 40+ hours per week. I went from 2 interviews per month to 15.",
-      results: "200+ applications → 67% response rate"
-    },
-    {
-      name: "Emily Watson",
-      role: "Data Scientist",
-      company: "Microsoft",
-      image: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop",
-      quote: "The personalized cover letters were indistinguishable from ones I'd write myself. Absolutely game-changing.",
-      results: "85% interview rate vs 12% industry average"
-    }
-  ];
-
-  const companies = [
-    { name: "Google", logo: "https://images.pexels.com/photos/270637/pexels-photo-270637.jpeg?auto=compress&cs=tinysrgb&w=120&h=60&fit=crop" },
-    { name: "Microsoft", logo: "https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg?auto=compress&cs=tinysrgb&w=120&h=60&fit=crop" },
-    { name: "Meta", logo: "https://images.pexels.com/photos/267350/pexels-photo-267350.jpeg?auto=compress&cs=tinysrgb&w=120&h=60&fit=crop" },
-    { name: "Amazon", logo: "https://images.pexels.com/photos/590016/pexels-photo-590016.jpeg?auto=compress&cs=tinysrgb&w=120&h=60&fit=crop" },
-    { name: "Apple", logo: "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=120&h=60&fit=crop" },
-    { name: "Netflix", logo: "https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=120&h=60&fit=crop" }
-  ];
 
   const features = [
     {
       icon: Brain,
-      title: "AI-Powered Matching",
+      title: "AI-Powered Job Matching",
       description: "Our advanced AI analyzes your CV and matches you with jobs that fit your exact skills and experience level.",
-      benefit: "Intelligent job targeting",
+      benefit: "10x better targeting",
       color: "from-purple-500 to-pink-500"
     },
     {
       icon: Zap,
-      title: "Bulk Application Engine",
-      description: "Apply to 100+ jobs in minutes with our automated application system that handles forms and uploads.",
-      benefit: "Massive time savings",
+      title: "Automated Bulk Applications",
+      description: "Apply to hundreds of jobs in minutes instead of spending hours on each application manually.",
+      benefit: "95% time reduction",
       color: "from-blue-500 to-cyan-500"
     },
     {
       icon: FileText,
       title: "Personalized Cover Letters",
       description: "Generate unique, compelling cover letters for each application using advanced natural language processing.",
-      benefit: "Professional quality content",
+      benefit: "Professional quality",
       color: "from-green-500 to-emerald-500"
     },
     {
       icon: BarChart3,
-      title: "Real-Time Analytics",
-      description: "Track your success metrics, optimize your strategy, and see exactly what's working in your job search.",
-      benefit: "Strategic insights",
+      title: "Smart Analytics Dashboard",
+      description: "Track your applications, response rates, and optimize your job search strategy with data-driven insights.",
+      benefit: "Strategic optimization",
       color: "from-orange-500 to-red-500"
     }
   ];
@@ -123,7 +82,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       name: "Starter",
       price: "Free",
       period: "forever",
-      description: "Perfect for testing the waters",
+      description: "Perfect for testing the platform",
       features: [
         "10 applications per month",
         "Basic CV analysis",
@@ -170,13 +129,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
     }
   ];
 
-  const stats = [
-    { number: "127K+", label: "Applications Sent", icon: Send },
-    { number: "15.2K+", label: "Jobs Landed", icon: Trophy },
-    { number: "89%", label: "Success Rate", icon: Target },
-    { number: "2.3min", label: "Average Setup", icon: Clock }
-  ];
-
   return (
     <div className="min-h-screen bg-white overflow-hidden">
       {/* Navigation */}
@@ -191,7 +143,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Features</a>
               <a href="#pricing" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Pricing</a>
-              <a href="#testimonials" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Success Stories</a>
+              <a href="#how-it-works" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">How It Works</a>
               <button 
                 onClick={onSignIn}
                 className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
@@ -222,7 +174,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
             {/* Badge */}
             <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-full mb-8">
               <Sparkles className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-semibold text-blue-800">The future of job applications is here</span>
+              <span className="text-sm font-semibold text-blue-800">Revolutionary AI-powered job application platform</span>
             </div>
 
             <h1 className="text-6xl md:text-7xl font-bold text-gray-900 mb-8 leading-tight">
@@ -233,9 +185,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Revolutionary AI-powered job application platform. Transform your job search with intelligent matching, 
-              automated applications, and personalized cover letters. Built for the modern job seeker.
+            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
+              Transform hours of manual applications into minutes of automated precision. 
+              Our AI applies to hundreds of jobs while you sleep, with personalized cover letters 
+              and intelligent matching that increases your odds by up to <span className="font-bold text-blue-600">10x</span>.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
@@ -252,60 +205,30 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
               </button>
             </div>
 
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-              <div className="flex items-center space-x-2">
-                <Shield className="w-5 h-5 text-green-600" />
-                <span className="text-sm font-medium">Enterprise Security</span>
+            {/* Value Props */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Clock className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2">95% Time Reduction</h3>
+                <p className="text-gray-600 text-sm">Turn days of applications into minutes</p>
               </div>
-              <div className="flex items-center space-x-2">
-                <Brain className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium">Advanced AI Technology</span>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Target className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2">10x Better Targeting</h3>
+                <p className="text-gray-600 text-sm">AI matches you with perfect-fit roles</p>
               </div>
-              <div className="flex items-center space-x-2">
-                <Zap className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-medium">Lightning Fast Setup</span>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Zap className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2">Automated Excellence</h3>
+                <p className="text-gray-600 text-sm">Professional applications 24/7</p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Companies Section */}
-      <section className="py-16 bg-white border-b border-gray-100">
-        <div className="container mx-auto px-6">
-          <p className="text-center text-gray-500 font-medium mb-12">Trusted by professionals at top companies worldwide</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
-            {companies.map((company, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-2">
-                  <Building className="w-8 h-8 text-gray-400" />
-                </div>
-                <span className="text-sm font-medium text-gray-600">{company.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Transforming Careers Worldwide</h2>
-            <p className="text-blue-100 text-lg">Join 50,000+ professionals who've revolutionized their job search</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center group">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <stat.icon className="w-8 h-8 text-white" />
-                </div>
-                <div className="text-4xl md:text-5xl font-bold mb-2">{stat.number}</div>
-                <div className="text-blue-100 font-medium">{stat.label}</div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
@@ -349,7 +272,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       </section>
 
       {/* How It Works */}
-      <section className="py-24 bg-white">
+      <section id="how-it-works" className="py-24 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
             <h2 className="text-5xl font-bold text-gray-900 mb-6">How It Works</h2>
@@ -401,82 +324,63 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section id="testimonials" className="py-24 bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Benefits Section */}
+      <section className="py-24 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold text-gray-900 mb-6">Success Stories</h2>
+            <h2 className="text-5xl font-bold text-gray-900 mb-6">Why Choose jobhunter ai?</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Real professionals, real results. See how jobhunter ai has transformed careers across the globe.
+              Transform your job search from a time-consuming chore into an automated success machine.
             </p>
           </div>
 
-          {/* Rotating Testimonial */}
-          <div className="max-w-4xl mx-auto mb-16">
-            <div className="bg-white rounded-3xl p-12 shadow-2xl border border-gray-100 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
-              
-              <div className="flex items-center mb-8">
-                <img 
-                  src={testimonials[currentTestimonial].image} 
-                  alt={testimonials[currentTestimonial].name}
-                  className="w-20 h-20 rounded-full object-cover mr-6"
-                />
-                <div>
-                  <h4 className="text-xl font-bold text-gray-900">{testimonials[currentTestimonial].name}</h4>
-                  <p className="text-gray-600">{testimonials[currentTestimonial].role}</p>
-                  <p className="text-blue-600 font-semibold">{testimonials[currentTestimonial].company}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              {
+                icon: Clock,
+                title: "Save 40+ Hours Per Week",
+                description: "Stop spending entire days filling out application forms. Our AI does it in minutes.",
+                color: "from-blue-500 to-cyan-500"
+              },
+              {
+                icon: Target,
+                title: "Higher Success Rates",
+                description: "AI-powered matching ensures you only apply to jobs where you're a perfect fit.",
+                color: "from-green-500 to-emerald-500"
+              },
+              {
+                icon: FileText,
+                title: "Professional Quality",
+                description: "Every application includes a personalized cover letter that sounds authentically you.",
+                color: "from-purple-500 to-pink-500"
+              },
+              {
+                icon: BarChart3,
+                title: "Data-Driven Insights",
+                description: "Track what's working and optimize your strategy with detailed analytics.",
+                color: "from-orange-500 to-red-500"
+              },
+              {
+                icon: Shield,
+                title: "Enterprise Security",
+                description: "Your data is protected with bank-level encryption and security protocols.",
+                color: "from-gray-500 to-gray-700"
+              },
+              {
+                icon: Zap,
+                title: "Lightning Fast Setup",
+                description: "Get started in under 5 minutes. No complex configuration required.",
+                color: "from-yellow-500 to-orange-500"
+              }
+            ].map((benefit, index) => (
+              <div key={index} className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all group">
+                <div className={`w-12 h-12 bg-gradient-to-r ${benefit.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <benefit.icon className="w-6 h-6 text-white" />
                 </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{benefit.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{benefit.description}</p>
               </div>
-              
-              <blockquote className="text-2xl text-gray-700 mb-6 leading-relaxed italic">
-                "{testimonials[currentTestimonial].quote}"
-              </blockquote>
-              
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-4">
-                <p className="text-green-800 font-semibold text-center">
-                  📈 {testimonials[currentTestimonial].results}
-                </p>
-              </div>
-              
-              {/* Testimonial Navigation */}
-              <div className="flex justify-center mt-8 space-x-2">
-                {testimonials.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentTestimonial(index)}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      index === currentTestimonial ? 'bg-blue-600' : 'bg-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Award className="w-8 h-8 text-white" />
-              </div>
-              <h4 className="font-bold text-gray-900 mb-2">G2 Leader</h4>
-              <p className="text-gray-600 text-sm">Highest rated job search platform</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
-              <h4 className="font-bold text-gray-900 mb-2">SOC 2 Compliant</h4>
-              <p className="text-gray-600 text-sm">Enterprise-grade security</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Globe className="w-8 h-8 text-white" />
-              </div>
-              <h4 className="font-bold text-gray-900 mb-2">50+ Countries</h4>
-              <p className="text-gray-600 text-sm">Global job market coverage</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -546,8 +450,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
             Ready to Transform Your Career?
           </h2>
           <p className="text-xl text-blue-100 mb-12 max-w-3xl mx-auto">
-            Join thousands of professionals who've accelerated their careers with AI-powered job applications. 
-            Start your free trial today and experience the future of job searching.
+            Stop wasting time on manual applications. Let our AI work 24/7 to land you interviews 
+            while you focus on preparing for your dream job. The future of job searching is here.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
@@ -592,18 +496,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
               <p className="text-gray-400 mb-6">
                 Revolutionary AI-powered job application platform. Transform your career with intelligent automation.
               </p>
-              <div className="flex space-x-4">
-                {/* Social icons would go here */}
-              </div>
             </div>
             
             <div>
               <h4 className="font-bold mb-4">Product</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">API</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Integrations</a></li>
               </ul>
             </div>
             
