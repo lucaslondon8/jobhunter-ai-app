@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { applicationService } from '../lib/supabase';
+import { applicationService } from '../../lib/supabase';
 import Sidebar from './dashboard/Sidebar';
 import Overview from './dashboard/Overview';
 // import JobMatching from './JobMatching';
