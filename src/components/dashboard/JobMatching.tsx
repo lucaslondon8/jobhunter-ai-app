@@ -111,7 +111,11 @@ const JobMatching: React.FC<JobMatchingProps> = ({ user, userCV, onApply, onCVUp
       onCVUpdate(cvAnalysis);
       
       // Show success message
-      alert(`CV parsed successfully! Found ${cvAnalysis.skills?.length || 0} skills and ${cvAnalysis.roles?.length || 0} roles.`);
+      const skillsCount = cvAnalysis.skills?.length || 0;
+      const rolesCount = cvAnalysis.roles?.length || 0;
+      const achievementsCount = cvAnalysis.keyAchievements?.length || 0;
+      
+      alert(`✅ CV parsed successfully!\n\n📊 Analysis Results:\n• ${skillsCount} skills identified\n• ${rolesCount} roles detected\n• ${achievementsCount} key achievements found\n• Seniority level: ${cvAnalysis.seniorityLevel || 'Not determined'}\n\nYou can now search for matching jobs!`);
     } catch (error) {
       console.error('Error uploading CV:', error);
       alert(`Failed to parse CV: ${error.message}`);
@@ -209,7 +213,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ user, userCV, onApply, onCVUp
             {isLoading ? 'Processing...' : 'Choose CV File'}
           </label>
           <p className="text-sm text-gray-500 mt-2">
-            Supported formats: PDF, DOCX, TXT (TXT works best for now)
+            Supported formats: PDF, DOCX, TXT • Maximum size: 10MB
           </p>
         </div>
       )}
