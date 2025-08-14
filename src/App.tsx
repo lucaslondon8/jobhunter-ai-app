@@ -88,9 +88,8 @@ function App() {
       setUser(null);
       setCurrentView('landing');
       setError(null);
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
   
   useEffect(() => {
