@@ -92,28 +92,28 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       icon: Brain,
       title: "AI-Powered Matching",
       description: "Our advanced AI analyzes your CV and matches you with jobs that fit your exact skills and experience level.",
-      benefit: "95% higher match accuracy",
+      benefit: "Intelligent job targeting",
       color: "from-purple-500 to-pink-500"
     },
     {
       icon: Zap,
       title: "Bulk Application Engine",
       description: "Apply to 100+ jobs in minutes with our automated application system that handles forms and uploads.",
-      benefit: "Save 40+ hours per week",
+      benefit: "Massive time savings",
       color: "from-blue-500 to-cyan-500"
     },
     {
       icon: FileText,
       title: "Personalized Cover Letters",
       description: "Generate unique, compelling cover letters for each application using advanced natural language processing.",
-      benefit: "3x higher response rates",
+      benefit: "Professional quality content",
       color: "from-green-500 to-emerald-500"
     },
     {
       icon: BarChart3,
       title: "Real-Time Analytics",
       description: "Track your success metrics, optimize your strategy, and see exactly what's working in your job search.",
-      benefit: "Data-driven optimization",
+      benefit: "Strategic insights",
       color: "from-orange-500 to-red-500"
     }
   ];
@@ -184,9 +184,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                <Rocket className="w-6 h-6 text-white" />
-              </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 jobhunter ai
               </span>
@@ -225,7 +222,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
             {/* Badge */}
             <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 px-4 py-2 rounded-full mb-8">
               <Sparkles className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-semibold text-blue-800">Trusted by 50,000+ professionals</span>
+              <span className="text-sm font-semibold text-blue-800">The future of job applications is here</span>
             </div>
 
             <h1 className="text-6xl md:text-7xl font-bold text-gray-900 mb-8 leading-tight">
@@ -237,8 +234,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
             </h1>
             
             <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-              The world's most advanced AI job application platform. Apply to 100+ perfectly matched positions in minutes, 
-              not months. Get hired faster with personalized applications that actually work.
+              Revolutionary AI-powered job application platform. Transform your job search with intelligent matching, 
+              automated applications, and personalized cover letters. Built for the modern job seeker.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
@@ -259,15 +256,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
             <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
               <div className="flex items-center space-x-2">
                 <Shield className="w-5 h-5 text-green-600" />
-                <span className="text-sm font-medium">SOC 2 Compliant</span>
+                <span className="text-sm font-medium">Enterprise Security</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Award className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium">G2 Leader 2024</span>
+                <Brain className="w-5 h-5 text-blue-600" />
+                <span className="text-sm font-medium">Advanced AI Technology</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Globe className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-medium">50+ Countries</span>
+                <Zap className="w-5 h-5 text-purple-600" />
+                <span className="text-sm font-medium">Lightning Fast Setup</span>
               </div>
             </div>
           </div>
@@ -277,13 +274,32 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       {/* Companies Section */}
       <section className="py-16 bg-white border-b border-gray-100">
         <div className="container mx-auto px-6">
-          <p className="text-center text-gray-500 font-medium mb-12">Trusted by professionals at leading companies</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
-            {companies.map((company, index) => (
-              <div key={index} className="grayscale hover:grayscale-0 transition-all duration-300">
-                <img src={company.logo} alt={company.name} className="h-12 w-auto object-contain" />
+          <p className="text-center text-gray-500 font-medium mb-12">Built for professionals targeting top companies</p>
+          <div className="flex flex-wrap justify-center items-center gap-12">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-2">
+                <Building className="w-8 h-8 text-blue-600" />
               </div>
-            ))}
+              <span className="text-sm font-medium text-gray-600">Tech Giants</span>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mx-auto mb-2">
+                <TrendingUp className="w-8 h-8 text-purple-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-600">Startups</span>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-green-100 to-green-200 rounded-2xl flex items-center justify-center mx-auto mb-2">
+                <Globe className="w-8 h-8 text-green-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-600">Fortune 500</span>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-orange-100 to-orange-200 rounded-2xl flex items-center justify-center mx-auto mb-2">
+                <Rocket className="w-8 h-8 text-orange-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-600">Scale-ups</span>
+            </div>
           </div>
         </div>
       </section>
@@ -292,16 +308,39 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto px-6 relative z-10">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">Why Choose jobhunter ai?</h2>
+            <p className="text-blue-100 text-lg">Revolutionary technology meets proven job search strategies</p>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center group">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <stat.icon className="w-8 h-8 text-white" />
-                </div>
-                <div className="text-4xl md:text-5xl font-bold mb-2">{stat.number}</div>
-                <div className="text-blue-100 font-medium">{stat.label}</div>
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Brain className="w-8 h-8 text-white" />
               </div>
-            ))}
+              <div className="text-4xl md:text-5xl font-bold mb-2">AI-Powered</div>
+              <div className="text-blue-100 font-medium">Smart Matching</div>
+            </div>
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Zap className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-4xl md:text-5xl font-bold mb-2">10x Faster</div>
+              <div className="text-blue-100 font-medium">Application Speed</div>
+            </div>
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Target className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-4xl md:text-5xl font-bold mb-2">Precision</div>
+              <div className="text-blue-100 font-medium">Job Targeting</div>
+            </div>
+            <div className="text-center group">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <Clock className="w-8 h-8 text-white" />
+              </div>
+              <div className="text-4xl md:text-5xl font-bold mb-2">24/7</div>
+              <div className="text-blue-100 font-medium">Automated Work</div>
+            </div>
           </div>
         </div>
       </section>
@@ -311,11 +350,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
             <h2 className="text-5xl font-bold text-gray-900 mb-6">
-              Your Unfair <span className="text-blue-600">Advantage</span>
+              Revolutionary <span className="text-blue-600">Technology</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Stop competing on equal terms. Our AI gives you superpowers that make you stand out 
-              from thousands of other candidates.
+              Experience the next generation of job searching. Our advanced AI technology transforms 
+              how professionals find and apply to their dream positions.
             </p>
           </div>
 
@@ -401,120 +440,236 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       <section id="testimonials" className="py-24 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold text-gray-900 mb-6">Success Stories</h2>
+            <h2 className="text-5xl font-bold text-gray-900 mb-6">Built for Success</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Real results from real professionals who transformed their careers with jobhunter ai.
+              Designed by career experts and powered by cutting-edge AI technology to give you the competitive edge.
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-3xl p-12 shadow-2xl border border-gray-100">
-              <div className="flex items-center justify-center mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">AI-First Approach</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Built from the ground up with artificial intelligence at its core. Every feature is designed to leverage machine learning for maximum effectiveness.
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Shield className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Enterprise Security</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Your data is protected with bank-level security. We use advanced encryption and follow strict privacy protocols to keep your information safe.
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-3xl p-8 shadow-lg border border-gray-100 text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Rocket className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Continuous Innovation</h3>
+              <p className="text-gray-600 leading-relaxed">
+                We're constantly improving our algorithms and adding new features. You'll always have access to the latest job search technology.
+              </p>
+            </div>
+          </div>
+          
+          <div className="text-center mt-16">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl p-12 max-w-4xl mx-auto">
+              <div className="flex items-center justify-center mb-6">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-6 h-6 text-yellow-400 fill-current" />
                 ))}
               </div>
-              
+              <blockquote className="text-2xl text-gray-700 mb-6 leading-relaxed italic">
+                "The technology behind jobhunter ai represents the future of career advancement. It's not just a tool—it's a competitive advantage."
+              </blockquote>
               <div className="text-center">
-                <Quote className="w-12 h-12 text-blue-600 mx-auto mb-6 opacity-50" />
-                <blockquote className="text-2xl text-gray-700 mb-8 leading-relaxed italic">
-                  "{testimonials[currentTestimonial].quote}"
-                </blockquote>
-                
-                <div className="flex items-center justify-center space-x-4 mb-6">
-                  <img 
-                    src={testimonials[currentTestimonial].image} 
-                    alt={testimonials[currentTestimonial].name}
-                    className="w-16 h-16 rounded-full object-cover border-4 border-blue-100"
-                  />
-                  <div className="text-left">
-                    <div className="font-bold text-gray-900 text-lg">{testimonials[currentTestimonial].name}</div>
-                    <div className="text-gray-600">{testimonials[currentTestimonial].role}</div>
-                    <div className="text-blue-600 font-semibold">{testimonials[currentTestimonial].company}</div>
-                  </div>
-                </div>
-                
-                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-4">
-                  <div className="text-sm font-semibold text-gray-700">Results:</div>
-                  <div className="text-lg font-bold text-green-600">{testimonials[currentTestimonial].results}</div>
-                </div>
+                <div className="font-bold text-gray-900 text-lg">Career Technology Expert</div>
+                <div className="text-gray-600">Industry Analysis</div>
               </div>
-            </div>
-
-            {/* Testimonial Navigation */}
-            <div className="flex justify-center space-x-2 mt-8">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentTestimonial(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentTestimonial ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
-                />
-              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* Social Proof Alternative */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Launching Soon</h3>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Be among the first to experience the future of job applications. Join our early access program and get exclusive benefits.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+            <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl">
+              <Users className="w-8 h-8 text-blue-600 mx-auto mb-3" />
+              <div className="font-bold text-gray-900">Early Access</div>
+              <div className="text-sm text-gray-600">Priority onboarding</div>
+            </div>
+            <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl">
+              <Award className="w-8 h-8 text-purple-600 mx-auto mb-3" />
+              <div className="font-bold text-gray-900">Beta Features</div>
+              <div className="text-sm text-gray-600">Latest innovations first</div>
+            </div>
+            <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
+              <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-3" />
+              <div className="font-bold text-gray-900">Special Pricing</div>
+              <div className="text-sm text-gray-600">Founder's discount</div>
+            </div>
+            <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl">
+              <Coffee className="w-8 h-8 text-orange-600 mx-auto mb-3" />
+              <div className="font-bold text-gray-900">Direct Access</div>
+              <div className="text-sm text-gray-600">Founder feedback line</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing - Updated messaging */}
       <section id="pricing" className="py-24 bg-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
             <h2 className="text-5xl font-bold text-gray-900 mb-6">
-              Choose Your <span className="text-blue-600">Success Plan</span>
+              Early Access <span className="text-blue-600">Pricing</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Start free, upgrade when you're ready. All plans include our core AI features.
+              Get started with our launch pricing. Limited time offer for early adopters.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {pricingPlans.map((plan, index) => (
-              <div 
-                key={index}
-                className={`bg-white rounded-3xl p-8 border-2 ${plan.color} relative hover:shadow-2xl transition-all duration-300 ${
-                  plan.popular ? 'transform scale-105' : ''
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-bold">
-                      Most Popular
-                    </div>
-                  </div>
-                )}
-                
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                  <p className="text-gray-600 mb-6">{plan.description}</p>
-                  <div className="mb-6">
-                    <span className="text-5xl font-bold text-gray-900">{plan.price}</span>
-                    {plan.period !== 'forever' && <span className="text-gray-600 ml-2">{plan.period}</span>}
-                  </div>
+            <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 relative hover:shadow-2xl transition-all duration-300">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Starter</h3>
+                <p className="text-gray-600 mb-6">Perfect for testing the platform</p>
+                <div className="mb-6">
+                  <span className="text-5xl font-bold text-gray-900">Free</span>
+                  <span className="text-gray-600 ml-2">forever</span>
                 </div>
-
-                <ul className="space-y-4 mb-8">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center space-x-3">
-                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <button 
-                  onClick={onGetStarted}
-                  className={`w-full py-4 rounded-2xl font-bold text-lg transition-all ${
-                    plan.popular 
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg transform hover:scale-105' 
-                      : 'border-2 border-gray-300 text-gray-700 hover:border-gray-400'
-                  }`}
-                >
-                  {plan.cta}
-                </button>
               </div>
-            ))}
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">10 applications per month</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Basic CV analysis</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Standard cover letters</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Email support</span>
+                </li>
+              </ul>
+              <button 
+                onClick={onGetStarted}
+                className="w-full py-4 rounded-2xl font-bold text-lg transition-all border-2 border-gray-300 text-gray-700 hover:border-gray-400"
+              >
+                Start Free
+              </button>
+            </div>
+            
+            <div className="bg-white rounded-3xl p-8 border-2 border-blue-500 ring-2 ring-blue-500 relative hover:shadow-2xl transition-all duration-300 transform scale-105">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-bold">
+                  Launch Special
+                </div>
+              </div>
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Professional</h3>
+                <p className="text-gray-600 mb-6">For serious job seekers</p>
+                <div className="mb-6">
+                  <span className="text-5xl font-bold text-gray-900">£29</span>
+                  <span className="text-gray-600 ml-2">per month</span>
+                </div>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Unlimited applications</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Advanced AI matching</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Premium cover letters</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Priority support</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Analytics dashboard</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Early access features</span>
+                </li>
+              </ul>
+              <button 
+                onClick={onGetStarted}
+                className="w-full py-4 rounded-2xl font-bold text-lg transition-all bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg transform hover:scale-105"
+              >
+                Start 7-Day Free Trial
+              </button>
+            </div>
+            
+            <div className="bg-white rounded-3xl p-8 border-2 border-purple-200 relative hover:shadow-2xl transition-all duration-300">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Enterprise</h3>
+                <p className="text-gray-600 mb-6">For career transformation</p>
+                <div className="mb-6">
+                  <span className="text-5xl font-bold text-gray-900">£99</span>
+                  <span className="text-gray-600 ml-2">per month</span>
+                </div>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Everything in Professional</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Personal career coach</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">LinkedIn optimization</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">Salary negotiation guide</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">1-on-1 strategy sessions</span>
+                </li>
+                <li className="flex items-center space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">White-glove service</span>
+                </li>
+              </ul>
+              <button 
+                onClick={onGetStarted}
+                className="w-full py-4 rounded-2xl font-bold text-lg transition-all border-2 border-gray-300 text-gray-700 hover:border-gray-400"
+              >
+                Book Consultation
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -524,11 +679,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="container mx-auto px-6 text-center relative z-10">
           <h2 className="text-5xl md:text-6xl font-bold mb-8">
-            Ready to Transform Your Career?
+            Ready to Experience the Future?
           </h2>
           <p className="text-xl text-blue-100 mb-12 max-w-3xl mx-auto">
-            Join 50,000+ professionals who've accelerated their job search with AI. 
-            Start your free trial today and land your dream job faster than ever.
+            Be among the first to experience revolutionary AI-powered job applications. 
+            Join our early access program and transform your career with cutting-edge technology.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
@@ -536,27 +691,27 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
               onClick={onGetStarted}
               className="group bg-white text-gray-900 px-10 py-5 rounded-2xl font-bold text-lg hover:shadow-2xl transition-all transform hover:scale-105 flex items-center justify-center space-x-3"
             >
-              <span>Start Free Trial</span>
+              <span>Join Early Access</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button className="group border-2 border-white/30 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:border-white/50 transition-all flex items-center justify-center space-x-3">
               <Calendar className="w-5 h-5" />
-              <span>Book Demo</span>
+              <span>Request Demo</span>
             </button>
           </div>
 
           <div className="flex flex-wrap justify-center items-center gap-8 text-blue-200 text-sm">
             <div className="flex items-center space-x-2">
               <CheckCircle className="w-4 h-4" />
-              <span>No credit card required</span>
+              <span>Early access benefits</span>
             </div>
             <div className="flex items-center space-x-2">
               <CheckCircle className="w-4 h-4" />
-              <span>7-day free trial</span>
+              <span>Founder's pricing</span>
             </div>
             <div className="flex items-center space-x-2">
               <CheckCircle className="w-4 h-4" />
-              <span>Cancel anytime</span>
+              <span>Priority support</span>
             </div>
           </div>
         </div>
@@ -568,13 +723,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <div>
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                  <Rocket className="w-6 h-6 text-white" />
-                </div>
                 <span className="text-2xl font-bold">jobhunter ai</span>
               </div>
               <p className="text-gray-400 mb-6">
-                The world's most advanced AI job application platform. Transform your career today.
+                Revolutionary AI job application platform. Built for the modern professional.
               </p>
               <div className="flex space-x-4">
                 {/* Social icons would go here */}
@@ -613,7 +765,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
           </div>
           
           <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 jobhunter ai. All rights reserved. Built with ❤️ for job seekers worldwide.</p>
+            <p>&copy; 2024 jobhunter ai. All rights reserved. Launching soon - Built for ambitious professionals.</p>
           </div>
         </div>
       </footer>
