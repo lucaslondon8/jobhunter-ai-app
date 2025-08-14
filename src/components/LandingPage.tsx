@@ -79,53 +79,60 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
 
   const pricingPlans = [
     {
-      name: "Starter",
-      price: "Free",
-      period: "forever",
-      description: "Perfect for testing the platform",
+      name: "Basic",
+      price: "£0",
+      period: "/month",
+      weeklyPrice: "£0 / week",
+      description: "The casual job browser",
       features: [
-        "10 applications per month",
-        "Basic CV analysis",
-        "Standard cover letters",
-        "Email support"
+        "Full Capability AI CV Analysis",
+        "10 AI Job Matches per day",
+        "1 AI-Generated Cover Letter per day"
       ],
-      cta: "Start Free",
+      cta: "Get Started Free",
       popular: false,
-      color: "border-gray-200"
+      color: "border-gray-200",
+      originalPrice: null,
+      launchOffer: null
     },
     {
-      name: "Professional",
-      price: "£29",
-      period: "per month",
-      description: "For serious job seekers",
+      name: "Pro",
+      price: "£19.90",
+      period: "/month",
+      weeklyPrice: "£4.90/week",
+      description: "The active job seeker who needs interviews now",
       features: [
-        "Unlimited applications",
-        "Advanced AI matching",
-        "Premium cover letters",
-        "Priority support",
-        "Analytics dashboard",
-        "Interview preparation"
+        "Everything in Basic",
+        "The Bulk Apply Engine",
+        "Unlimited AI Job Matches",
+        "10 AI-Generated Cover Letters per day",
+        "Basic Progress Analytics"
       ],
-      cta: "Start 7-Day Free Trial",
+      cta: "Start Pro Plan",
       popular: true,
-      color: "border-blue-500 ring-2 ring-blue-500"
+      color: "border-blue-500 ring-2 ring-blue-500",
+      originalPrice: "£29",
+      launchOffer: "Launch Offer: First 3 months",
+      originalWeeklyPrice: "£9.90/week"
     },
     {
-      name: "Enterprise",
-      price: "£99",
-      period: "per month",
-      description: "For career transformation",
+      name: "Plus+",
+      price: "£39.90",
+      period: "/month",
+      weeklyPrice: "£12.90/week",
+      description: "The ambitious candidate targeting competitive roles",
       features: [
-        "Everything in Professional",
-        "Personal career coach",
-        "LinkedIn optimization",
-        "Salary negotiation guide",
-        "1-on-1 strategy sessions",
-        "White-glove service"
+        "Everything in Pro",
+        "Unlimited AI-Generated Cover Letters",
+        "Advanced Progress Analytics",
+        "⭐ Refine job search strategy"
       ],
-      cta: "Book Consultation",
+      cta: "Start Plus+ Plan",
       popular: false,
-      color: "border-purple-200"
+      color: "border-purple-200",
+      originalPrice: "£49",
+      launchOffer: "Launch Offer: First 3 months",
+      originalWeeklyPrice: "£14.90/week"
     }
   ];
 
@@ -412,15 +419,33 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                   <p className="text-gray-600 mb-6">{plan.description}</p>
                   <div className="mb-6">
-                    <span className="text-5xl font-bold text-gray-900">{plan.price}</span>
+                    {plan.originalPrice && (
+                      <div className="text-gray-400 line-through text-lg mb-1">{plan.originalPrice}</div>
+                    )}
+                    <span className={`text-5xl font-bold ${plan.popular ? 'text-blue-600' : plan.name === 'Plus+' ? 'text-purple-600' : 'text-gray-900'}`}>
+                      {plan.price}
+                    </span>
                     <span className="text-gray-600 ml-2">{plan.period}</span>
+                  </div>
+                  <div className="text-gray-600 text-sm mb-2">{plan.weeklyPrice}</div>
+                  {plan.launchOffer && (
+                    <div className={`text-sm font-semibold mb-2 ${plan.popular ? 'text-blue-600' : 'text-purple-600'}`}>
+                      {plan.launchOffer}
+                    </div>
+                  )}
+                  {plan.originalWeeklyPrice && (
+                    <div className="text-gray-400 line-through text-sm">{plan.originalWeeklyPrice}</div>
                   </div>
                 </div>
                 
                 <ul className="space-y-4 mb-8">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center space-x-3">
-                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      {feature.startsWith('⭐') ? (
+                        <span className="text-purple-500 flex-shrink-0">⭐</span>
+                      ) : (
+                        <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      )}
                       <span className="text-gray-700">{feature}</span>
                     </li>
                   ))}
@@ -431,7 +456,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
                   className={`w-full py-4 rounded-2xl font-bold text-lg transition-all ${
                     plan.popular 
                       ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg transform hover:scale-105' 
-                      : 'border-2 border-gray-300 text-gray-700 hover:border-gray-400'
+                      : plan.name === 'Plus+' 
+                        ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:shadow-lg transform hover:scale-105'
+                        : 'border-2 border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
                 >
                   {plan.cta}
