@@ -71,7 +71,7 @@ async function searchJobs(req: Request) {
       console.error("Response headers:", Object.fromEntries(adzunaResponse.headers.entries()));
       throw new Error(`Adzuna API request failed with status ${adzunaResponse.status}`);
     }
-    
+
     const data = await adzunaResponse.json();
     console.log(`Successfully fetched ${data.results?.length || 0} jobs from Adzuna`);
 
@@ -91,7 +91,7 @@ async function searchJobs(req: Request) {
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 200, headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   const url = new URL(req.url);

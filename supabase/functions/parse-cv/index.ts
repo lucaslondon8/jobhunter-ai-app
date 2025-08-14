@@ -36,7 +36,7 @@ function extractSkills(text: string): string[] {
   ];
   const foundSkills = new Set<string>();
   const lowerText = text.toLowerCase();
-  
+
   skills.forEach(skill => {
     if (lowerText.includes(skill.toLowerCase())) {
       foundSkills.add(skill);
@@ -60,7 +60,7 @@ function extractRoles(text: string): string[] {
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 200, headers: corsHeaders });
+    return new Response('ok', { status: 200, headers: corsHeaders });
   }
 
   try {
@@ -69,7 +69,7 @@ Deno.serve(async (req: Request) => {
     if (authError || !user) {
       return new Response(JSON.stringify({ error: authError || 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
-    
+
     const formData = await req.formData();
     const file = formData.get('cv') as File;
 
@@ -79,7 +79,7 @@ Deno.serve(async (req: Request) => {
 
     let textContent = '';
     const buffer = await file.arrayBuffer();
-    
+
     if (file.type === 'application/pdf') {
       const data = await pdf(buffer);
       textContent = data.text;
