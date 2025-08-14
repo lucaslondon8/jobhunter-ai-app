@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
-import { supabase, applicationService } from '../../lib/supabase';
+import React, { useState, useEffect } from 'react';
+import { applicationService } from '../lib/supabase';
 import Sidebar from './dashboard/Sidebar';
+import Overview from './dashboard/Overview';
+import JobMatching from './dashboard/JobMatching';
+import Applications from './dashboard/Applications';
+import Analytics from './dashboard/Analytics';
+import Settings from './dashboard/Settings';
+
+interface DashboardProps {
+  user: any;
+  onSignOut: () => void;
+}
 
 const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [userCV, setUserCV] = useState<any>(null);
   const [applications, setApplications] = useState<any[]>([]);
-  const [isLoadingApplications, setIsLoadingApplications] = useState(false);
+  const [isLoadingApplications, setIsLoadingApplications] = useState(true);
 
-  // Load applications from database
-  React.useEffect(() => {
+  useEffect(() => {
     loadApplications();
   }, []);
 
@@ -17,55 +26,51 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
     setIsLoadingApplications(true);
     try {
       const dbApplications = await applicationService.getApplications();
-      
-      // Transform database applications to match our local format
-      const transformedApplications = dbApplications.map(app => ({
-        id: app.id,
-        jobId: app.job_id,
-        title: app.job_title,
-        company: app.company_name,
-        appliedDate: app.applied_at,
-        status: app.status,
-        notes: app.notes,
-        salary: app.salary_range,
-        location: app.location,
-        jobType: app.job_type
-      }));
-      
-      setApplications(transformedApplications);
+      setApplications(dbApplications || []);
     } catch (error) {
       console.error('Failed to load applications:', error);
+      setApplications([]);
     } finally {
       setIsLoadingApplications(false);
     }
   };
 
-  const handleNewApplications = (newApplications: any[]) => {
-    setApplications(prev => [...prev, ...newApplications]);
-    // Refresh from database after a short delay to get updated statuses
+  const handleNewApplications = (newlySubmittedJobs: any[]) => {
+    setApplications(prev => [...newlySubmittedJobs, ...prev]);
     setTimeout(() => {
       loadApplications();
-    }, 2000);
+    }, 5000);
   };
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'cv':
-        return <CVUpload userCV={userCV} onCVUpdate={setUserCV} />;
+      case 'overview':
+        return <Overview user={user} applications={applications} />;
       case 'jobs':
-        return <JobMatching userCV={userCV} onApply={handleNewApplications} />;
+        return <JobMatching user={user} userCV={userCV} onApply={handleNewApplications} onCVUpdate={setUserCV} />;
       case 'applications':
         return <Applications applications={applications} isLoading={isLoadingApplications} />;
+      case 'analytics':
+        return <Analytics applications={applications} />;
+      case 'settings':
+        return <Settings user={user} />;
       default:
-        return <div>Overview content</div>;
+        return <Overview user={user} applications={applications} />;
     }
   };
 
   return (
-    <div className="dashboard">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onSignOut={onSignOut} />
-      <main className="dashboard-content">
-        {renderContent()}
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+        user={user}
+        onSignOut={onSignOut}
+      />
+      <main className="flex-1 lg:ml-64">
+        <div className="p-4 sm:p-6 lg:p-8">
+          {renderContent()}
+        </div>
       </main>
     </div>
   );
