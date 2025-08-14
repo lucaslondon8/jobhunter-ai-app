@@ -24,7 +24,7 @@ const supabase = createClient(
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 200, headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
@@ -55,7 +55,7 @@ Deno.serve(async (req: Request) => {
         // Save the new Stripe customer ID to the user's profile
         await supabase.from('user_profiles').update({ stripe_customer_id: customerId }).eq('id', user.id);
     }
-    
+
     // 4. Create a Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],

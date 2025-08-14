@@ -32,7 +32,7 @@ async function processManualReviewJobs(jobs: any[], userProfile: any, userId: st
   for (const job of jobs) {
     try {
       console.log(`Flagging for manual review: ${job.jobTitle} at ${job.companyName}`);
-      
+
       // Store application in database with pending status for manual review
       const { data: application, error: dbError } = await supabase
         .from('applications')
@@ -98,7 +98,7 @@ async function processManualReviewJobs(jobs: any[], userProfile: any, userId: st
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 200, headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   if (req.method !== 'POST') {
@@ -111,7 +111,7 @@ Deno.serve(async (req: Request) => {
   try {
     const authHeader = req.headers.get('Authorization');
     const { user, error: authError } = await getUserFromToken(authHeader || '');
-    
+
     if (authError || !user) {
       return new Response(JSON.stringify({ error: authError || 'Unauthorized' }), {
         status: 401,
