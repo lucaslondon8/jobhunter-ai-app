@@ -1,9 +1,7 @@
-// src/App.tsx
-
 import React, { useState, useEffect } from 'react';
 import { supabase, authService, profileService } from './lib/supabase';
 import LandingPage from './components/LandingPage';
-import Dashboard from './components/dashboard/Dashboard';
+import Dashboard from './components/Dashboard';
 import AuthModal from './components/AuthModal';
 
 function App() {
@@ -54,9 +52,8 @@ function App() {
       };
       setUser(fallbackUser);
       setCurrentView('dashboard');
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
   
   const checkSession = async () => {
@@ -88,8 +85,8 @@ function App() {
       setUser(null);
       setCurrentView('landing');
       setError(null);
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
   
   useEffect(() => {
