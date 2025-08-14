@@ -46,18 +46,18 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'overview':
-        return <Overview user={user} applications={applications} />;
-      case 'jobs':
-        return <JobMatching user={user} userCV={userCV} onApply={handleNewApplications} onCVUpdate={setUserCV} />;
-      case 'applications':
-        return <Applications applications={applications} isLoading={isLoadingApplications} />;
-      case 'analytics':
-        return <Analytics applications={applications} />;
-      case 'settings':
-        return <Settings user={user} />;
+      // case 'overview':
+      //   return <Overview user={user} applications={applications} />;
+      // case 'jobs':
+      //   return <JobMatching user={user} userCV={userCV} onApply={handleNewApplications} onCVUpdate={setUserCV} />;
+      // case 'applications':
+      //   return <Applications applications={applications} isLoading={isLoadingApplications} />;
+      // case 'analytics':
+      //   return <Analytics applications={applications} />;
+      // case 'settings':
+      //   return <Settings user={user} />;
       default:
-        return <Overview user={user} applications={applications} />;
+        return <div>Test</div>;
     }
   };
 
