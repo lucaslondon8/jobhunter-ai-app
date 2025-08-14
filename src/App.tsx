@@ -107,8 +107,8 @@ function App() {
   };
 
   const handleSignOut = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       await authService.signOut();
       setUser(null);
       setCurrentView('landing');
@@ -116,9 +116,8 @@ function App() {
     } catch (error) {
       console.error('Sign out error:', error);
       setError('Failed to sign out');
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   if (isLoading) {
