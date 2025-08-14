@@ -8,7 +8,9 @@ import {
   User, Mail, Lock, Bell, CreditCard, Shield, Save, Link2, Zap
 } from 'lucide-react';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY 
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
+  : null;
 
 interface SettingsProps {
   user: any;
@@ -103,9 +105,18 @@ const CheckoutForm: React.FC<SettingsProps> = ({ user }) => {
 };
 
 const Settings: React.FC<SettingsProps> = (props) => (
-  <Elements stripe={stripePromise}>
-    <CheckoutForm {...props} />
-  </Elements>
+  stripePromise ? (
+    <Elements stripe={stripePromise}>
+      <CheckoutForm {...props} />
+    </Elements>
+  ) : (
+    <div className="space-y-8">
+      <h1 className="text-3xl font-bold text-gray-900 text-center">Settings</h1>
+      <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <p className="text-gray-600">Stripe is not configured. Payment features are disabled.</p>
+      </div>
+    </div>
+  )
 );
 
 export default Settings;
