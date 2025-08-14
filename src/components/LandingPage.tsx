@@ -91,9 +91,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       ],
       cta: "Get Started Free",
       popular: false,
-      color: "border-gray-200",
-      originalPrice: null,
-      launchOffer: null
+      color: "border-gray-200"
     },
     {
       name: "Pro",
@@ -110,7 +108,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
       ],
       cta: "Start Pro Plan",
       popular: true,
-      color: "border-blue-500 ring-2 ring-blue-500",
+      color: "border-blue-500 ring-2 ring-blue-500 ring-opacity-50",
       originalPrice: "£29",
       launchOffer: "Launch Offer: First 3 months",
       originalWeeklyPrice: "£9.90/week"
@@ -125,11 +123,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
         "Everything in Pro",
         "Unlimited AI-Generated Cover Letters",
         "Advanced Progress Analytics",
-        "⭐ Refine job search strategy"
+        "Refine job search strategy"
       ],
       cta: "Start Plus+ Plan",
       popular: false,
-      color: "border-purple-200",
+      color: "border-purple-500",
       originalPrice: "£49",
       launchOffer: "Launch Offer: First 3 months",
       originalWeeklyPrice: "£14.90/week"
@@ -406,7 +404,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {pricingPlans.map((plan, index) => (
-              <div key={index} className={`bg-white rounded-3xl p-8 border-2 ${plan.color} relative hover:shadow-2xl transition-all duration-300 ${plan.popular ? 'transform scale-105' : ''}`}>
+              <div key={index} className={`bg-white rounded-3xl p-8 border-2 ${plan.color} relative hover:shadow-2xl transition-all duration-300 ${plan.popular ? 'transform scale-105 shadow-xl' : ''}`}>
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full text-sm font-bold">
@@ -427,21 +425,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignIn }) => 
                     </span>
                     <span className="text-gray-600 ml-2">{plan.period}</span>
                   </div>
-                  <div className="text-gray-600 text-sm mb-2">{plan.weeklyPrice}</div>
+                  <div className="text-gray-600 text-sm mb-4">{plan.weeklyPrice}</div>
                   {plan.launchOffer && (
                     <div className={`text-sm font-semibold mb-2 ${plan.popular ? 'text-blue-600' : 'text-purple-600'}`}>
                       {plan.launchOffer}
                     </div>
                   )}
                   {plan.originalWeeklyPrice && (
-                    <div className="text-gray-400 line-through text-sm">{plan.originalWeeklyPrice}</div>
+                    <div className="text-gray-400 line-through text-sm mb-2">{plan.originalWeeklyPrice}</div>
                   </div>
                 </div>
                 
                 <ul className="space-y-4 mb-8">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center space-x-3">
-                      {feature.startsWith('⭐') ? (
+                      {feature === 'Refine job search strategy' && plan.name === 'Plus+' ? (
                         <span className="text-purple-500 flex-shrink-0">⭐</span>
                       ) : (
                         <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
