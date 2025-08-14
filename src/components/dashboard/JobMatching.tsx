@@ -83,6 +83,7 @@ const JobMatching: React.FC<JobMatchingProps> = ({ user, userCV, onApply, onCVUp
   const handleFileUpload = async (file: File) => {
     if (!file) return;
 
+    setIsLoading(true);
     const formData = new FormData();
     formData.append('cv', file);
 
@@ -90,6 +91,8 @@ const JobMatching: React.FC<JobMatchingProps> = ({ user, userCV, onApply, onCVUp
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
+      console.log('Uploading CV file:', file.name, file.type, file.size);
+      
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parse-cv`, {
         method: 'POST',
         headers: {
@@ -99,15 +102,21 @@ const JobMatching: React.FC<JobMatchingProps> = ({ user, userCV, onApply, onCVUp
       });
 
       if (!response.ok) {
-        throw new Error('Failed to parse CV');
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Failed to parse CV (${response.status})`);
       }
 
       const cvAnalysis = await response.json();
       console.log('CV Analysis:', cvAnalysis);
       onCVUpdate(cvAnalysis);
+      
+      // Show success message
+      alert(`CV parsed successfully! Found ${cvAnalysis.skills?.length || 0} skills and ${cvAnalysis.roles?.length || 0} roles.`);
     } catch (error) {
       console.error('Error uploading CV:', error);
-      alert('Failed to parse CV. Please try again.');
+      alert(`Failed to parse CV: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -169,25 +178,39 @@ const JobMatching: React.FC<JobMatchingProps> = ({ user, userCV, onApply, onCVUp
 
       {/* CV Upload Section */}
       {!userCV && (
-        <div className="bg-white rounded-2xl p-8 border border-gray-200 text-center">
+        <div className={`bg-white rounded-2xl p-8 border border-gray-200 text-center ${isLoading ? 'opacity-50' : ''}`}>
           <Upload className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Your CV</h3>
           <p className="text-gray-600 mb-6">
             Upload your CV to get personalized job matches and automated applications
           </p>
+          {isLoading && (
+            <div className="mb-4">
+              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+              <p className="text-blue-600">Parsing your CV...</p>
+            </div>
+          )}
           <input
             type="file"
             accept=".pdf,.doc,.docx,.txt"
             onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
             className="hidden"
             id="cv-upload"
+            disabled={isLoading}
           />
           <label
             htmlFor="cv-upload"
-            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors cursor-pointer inline-block"
+            className={`px-6 py-3 rounded-xl font-semibold transition-colors cursor-pointer inline-block ${
+              isLoading 
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
           >
-            Choose CV File
+            {isLoading ? 'Processing...' : 'Choose CV File'}
           </label>
+          <p className="text-sm text-gray-500 mt-2">
+            Supported formats: PDF, DOCX, TXT (TXT works best for now)
+          </p>
         </div>
       )}
 
